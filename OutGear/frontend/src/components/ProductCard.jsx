@@ -1,0 +1,1 @@
+export default function ProductCard() { return <div>Card</div>; }
