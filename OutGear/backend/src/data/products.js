@@ -1,2 +1,38 @@
-// Data sementara produk
-export const products = [];
+export const products = [
+  {
+    id: "tenda-2p",
+    name: "Tenda 2 Person",
+    category: "Tenda",
+    buyPrice: 850000,
+    rentPrice: 60000,
+    stock: 8,
+    store: { lat: -5.1477, lng: 119.4327 },
+  },
+  {
+    id: "carrier-60l",
+    name: "Carrier 60L",
+    category: "Tas",
+    buyPrice: 1250000,
+    rentPrice: 75000,
+    stock: 5,
+    store: { lat: -5.1477, lng: 119.4327 },
+  },
+  {
+    id: "sepatu-hiking",
+    name: "Sepatu Hiking",
+    category: "Sepatu",
+    buyPrice: 950000,
+    rentPrice: 70000,
+    stock: 6,
+    store: { lat: -5.1477, lng: 119.4327 },
+  },
+  {
+    id: "kompor-outdoor",
+    name: "Kompor Outdoor",
+    category: "Peralatan",
+    buyPrice: 450000,
+    rentPrice: 35000,
+    stock: 10,
+    store: { lat: -5.1477, lng: 119.4327 },
+  },
+];
