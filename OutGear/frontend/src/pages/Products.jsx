@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getProducts } from "../api.js";
+import { getProducts } from "../services/api.js";
 import { useCart } from "../context/CartContext.jsx";
 
 export default function Products() {

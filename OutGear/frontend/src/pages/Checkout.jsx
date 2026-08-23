@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { calculateDeliveryFee, createOrder } from "../api.js";
+import { calculateDeliveryFee, createOrder } from "../services/api.js";
 import { useCart } from "../context/CartContext.jsx";
 
 export default function Checkout() {
