@@ -1,48 +1,251 @@
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import tasImg from "../assets/tas.png";
+import sepatuImg from "../assets/sepatu.png";
+import tendaImg from "../assets/tenda.png";
+import gearImg from "../assets/gear.png";
 
 export default function Home() {
+  // --- LOGIKA SLIDER (CAROUSEL) ---
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const slides = [
+    {
+      title: "PERLENGKAPAN OUTDOOR PREMIUM\nUNTUK PECINTA ALAM SEJATI!",
+      subtitle: "OUTGEAR OUTDOOR GEAR",
+      image:
+        "https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&q=80",
+    },
+    {
+      title: "SIAPKAN PETUALANGANMU\nDENGAN PERALATAN TERBAIK",
+      subtitle: "EKSPLORASI TANPA BATAS",
+      image:
+        "https://images.unsplash.com/photo-1522163182402-834f871fd851?auto=format&fit=crop&q=80",
+    },
+  ];
+
+  // Efek geser otomatis setiap 5 detik
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [slides.length]);
+
+  const nextSlide = () =>
+    setCurrentSlide(currentSlide === slides.length - 1 ? 0 : currentSlide + 1);
+  const prevSlide = () =>
+    setCurrentSlide(currentSlide === 0 ? slides.length - 1 : currentSlide - 1);
+
   return (
     <main>
-      <section className="hero">
-        <div>
-          <p className="eyebrow">OUTDOOR EQUIPMENT PLATFORM</p>
-          <h1>Siapkan perjalananmu ke gunung dengan lebih mudah.</h1>
-          <p>
-            Cari perlengkapan berdasarkan kategori dan budget, pilih sewa atau
-            beli, lalu lanjutkan ke satu keranjang yang sama.
-          </p>
-          <Link className="button" to="/products">
-            Lihat Produk
-          </Link>
+      {/* 1. HERO SLIDER */}
+      <section className="hero-slider">
+        <div
+          className="slides-container"
+          style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+        >
+          {slides.map((slide, index) => (
+            <div
+              key={index}
+              className="slide"
+              style={{ backgroundImage: `url(${slide.image})` }}
+            >
+              <div className="slide-content">
+                <h1>{slide.title}</h1>
+                <p>{slide.subtitle}</p>
+              </div>
+            </div>
+          ))}
         </div>
-        <div className="hero-card">
-          ⛰️
-          <br />
-          <strong>Rent • Buy • Hike</strong>
+
+        <button className="slider-btn prev" onClick={prevSlide}>
+          &#10094;
+        </button>
+        <button className="slider-btn next" onClick={nextSlide}>
+          &#10095;
+        </button>
+
+        <div className="slider-dots">
+          {slides.map((_, index) => (
+            <span
+              key={index}
+              className={`dot ${currentSlide === index ? "active" : ""}`}
+              onClick={() => setCurrentSlide(index)}
+            ></span>
+          ))}
         </div>
       </section>
 
-      <section id="about" className="section">
-        <h2>About Us</h2>
-        <p>
-          Platform untuk membantu pendaki mendapatkan alat outdoor dengan proses
-          sewa dan pembelian yang sederhana.
-        </p>
+      {/* 2. WELCOME FEATURES (4 IKON) */}
+      <section className="features-bar">
+        <div className="feature-item">
+          <span className="feature-icon">🎒</span>
+          <h4>
+            GARANSI TAS
+            <br />
+            SEUMUR HIDUP
+          </h4>
+        </div>
+        <div className="feature-item">
+          <span className="feature-icon">📱</span>
+          <h4>
+            PEMBAYARAN
+            <br />
+            MUDAH
+          </h4>
+        </div>
+        <div className="feature-item">
+          <span className="feature-icon">📦</span>
+          <h4>
+            KEMUDAHAN
+            <br />
+            PENUKARAN
+          </h4>
+        </div>
+        <div className="feature-item">
+          <span className="feature-icon">⏱️</span>
+          <h4>FAST RESPON</h4>
+        </div>
       </section>
 
-      <section id="services" className="section grid">
-        <article>
-          <h3>Hybrid Cart</h3>
-          <p>Sewa dan beli dapat berada dalam satu keranjang.</p>
-        </article>
-        <article>
-          <h3>Smart Delivery</h3>
-          <p>Jarak dihitung otomatis untuk memperkirakan biaya antar.</p>
-        </article>
-        <article>
-          <h3>Late Fee</h3>
-          <p>Denda keterlambatan dihitung berdasarkan waktu pengembalian.</p>
-        </article>
+      {/* 3. KATEGORI PRODUK (Kode Lama Anda) */}
+      <section id="kategori" className="section">
+        <h2 className="section-title">JELAJAHI KATEGORI</h2>
+        <div
+          className="grid"
+          style={{ gridTemplateColumns: "repeat(4, 1fr)", gap: "16px" }}
+        >
+          <article className="product" style={{ textAlign: "center" }}>
+            <div
+              className="product-image"
+              style={{
+                height: "140px",
+                padding: "10px",
+                background: "#f0f0f0",
+              }}
+            >
+              <img
+                src={tasImg}
+                alt="Tas Hiking"
+                style={{ width: "100%", height: "100%", objectFit: "contain" }}
+              />
+            </div>
+            <h3>Bags</h3>
+            <p>145 Produk</p>
+          </article>
+          <article className="product" style={{ textAlign: "center" }}>
+            <div
+              className="product-image"
+              style={{
+                height: "140px",
+                padding: "10px",
+                background: "#f0f0f0",
+              }}
+            >
+              <img
+                src={sepatuImg}
+                alt="Sepatu Hiking"
+                style={{ width: "100%", height: "100%", objectFit: "contain" }}
+              />
+            </div>
+            <h3>Shoes</h3>
+            <p>267 Produk</p>
+          </article>
+          <article className="product" style={{ textAlign: "center" }}>
+            <div
+              className="product-image"
+              style={{
+                height: "140px",
+                padding: "10px",
+                background: "#f0f0f0",
+              }}
+            >
+              <img
+                src={tendaImg}
+                alt="Tenda"
+                style={{ width: "100%", height: "100%", objectFit: "contain" }}
+              />
+            </div>
+            <h3>Tents</h3>
+            <p>89 Produk</p>
+          </article>
+          <article className="product" style={{ textAlign: "center" }}>
+            <div
+              className="product-image"
+              style={{
+                height: "140px",
+                padding: "10px",
+                background: "#f0f0f0",
+              }}
+            >
+              <img
+                src={gearImg}
+                alt="Peralatan Gear"
+                style={{ width: "100%", height: "100%", objectFit: "contain" }}
+              />
+            </div>
+            <h3>Gear</h3>
+            <p>312 Produk</p>
+          </article>
+        </div>
+      </section>
+
+      {/* 4. TENTANG KAMI (THE STORY BEHIND, VISI, MISI) */}
+      <section id="tentang" className="about-story">
+        <div className="story-grid">
+          <div className="story-title">
+            <h2>The story behind</h2>
+          </div>
+          <div className="story-content">
+            <p>
+              Berawal dari sebuah pemikiran, ide dan mimpi serta keyakinan
+              memberikan yang terbaik untuk alam dan negeri, OutGear pun lahir
+              menjadi sebuah kekuatan baru dalam industri perlengkapan alam
+              terbuka. Hingga saat ini, kami masih berkarya untuk memberikan
+              segala kemampuan terbaik agar menjadi salah satu kekuatan industri
+              outdoor di Indonesia.
+            </p>
+          </div>
+        </div>
+
+        <div className="story-grid">
+          <div className="story-title">
+            <h2>VISI</h2>
+          </div>
+          <div className="story-content">
+            <p>
+              <em>
+                Menjadi sebuah produk mendunia dalam produk petualangan
+                khususnya lifestyle outdoor.
+              </em>
+            </p>
+          </div>
+        </div>
+
+        <div className="story-grid">
+          <div className="story-title">
+            <h2>MISI</h2>
+          </div>
+          <div className="story-content">
+            <ul>
+              <li>
+                Berinvestasi dalam pengembangan produk berkarakter serta
+                memperhatikan kriteria untuk menjadi yang terbaik.
+              </li>
+              <li>
+                Mengembangkan sistem e-commerce yang modern dan responsif.
+              </li>
+              <li>
+                Memperluas cakupan kriteria produk tema teknis, lifestyle, dan
+                adventure.
+              </li>
+              <li>
+                Menyediakan produk-produk berkualitas dan memuaskan untuk
+                kebutuhan pelanggan.
+              </li>
+            </ul>
+          </div>
+        </div>
       </section>
     </main>
   );

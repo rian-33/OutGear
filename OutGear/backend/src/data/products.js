@@ -35,4 +35,13 @@ export const products = [
     stock: 10,
     store: { lat: -5.1477, lng: 119.4327 },
   },
+  {
+    id: "carrier-40l",
+    name: "Carrier 40L Ultralight",
+    category: "Tas",
+    buyPrice: 950000,
+    rentPrice: 55000,
+    stock: 5,
+    store: { lat: -5.1477, lng: 119.4327 },
+  },
 ];

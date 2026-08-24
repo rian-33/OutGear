@@ -1,20 +1,30 @@
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext.jsx";
+import logoImg from "../assets/logo.png";
 
 export default function Navbar() {
   const { cart } = useCart();
 
   return (
     <header className="navbar">
-      <Link className="brand" to="/">
-        SummitGear
+      <Link className="brand-logo" to="/">
+        {/* 2. Gunakan tag img untuk menampilkan logo */}
+        <img
+          src={logoImg}
+          alt="OutGear Logo"
+          style={{ height: "45px", objectFit: "contain" }}
+        />
       </Link>
-      <nav>
+
+      <nav className="nav-links">
         <Link to="/">Home</Link>
-        <a href="#about">About Us</a>
-        <Link to="/products">Produk</Link>
-        <a href="#services">Services</a>
-        <Link to="/checkout">Pesan Sekarang ({cart.length})</Link>
+        <Link to="/products">Katalog</Link>
+        <a href="#kategori">Kategori</a>
+        <a href="#tentang">Tentang</a>
+
+        <Link to="/checkout" className="cart-badge-btn">
+          🛒 Keranjang <span className="badge">{cart.length}</span>
+        </Link>
       </nav>
     </header>
   );
