@@ -3,6 +3,10 @@ import tasImg from "../assets/tas.png";
 import sepatuImg from "../assets/sepatu.png";
 import tendaImg from "../assets/tenda.png";
 import gearImg from "../assets/gear.png";
+import garansiIcon from "../assets/garansi.png";
+import bayarIcon from "../assets/kemudahan pembayaran.png";
+import tukarIcon from "../assets/kemudahan penukaran.png";
+import responIcon from "../assets/fast respon.png";
 
 export default function Home() {
   // --- LOGIKA SLIDER (CAROUSEL) ---
@@ -79,31 +83,55 @@ export default function Home() {
       {/* 2. WELCOME FEATURES (4 IKON) */}
       <section className="features-bar">
         <div className="feature-item">
-          <span className="feature-icon">🎒</span>
+          {/* 2. Ganti emoji dengan tag img */}
+          <img
+            src={garansiIcon}
+            alt="Garansi"
+            className="feature-icon"
+            style={{ width: "65px", height: "65px", objectFit: "contain" }}
+          />
           <h4>
             GARANSI TAS
             <br />
             SEUMUR HIDUP
           </h4>
         </div>
+
         <div className="feature-item">
-          <span className="feature-icon">📱</span>
+          <img
+            src={bayarIcon}
+            alt="Pembayaran"
+            className="feature-icon"
+            style={{ width: "65px", height: "65px", objectFit: "contain" }}
+          />
           <h4>
             PEMBAYARAN
             <br />
             MUDAH
           </h4>
         </div>
+
         <div className="feature-item">
-          <span className="feature-icon">📦</span>
+          <img
+            src={tukarIcon}
+            alt="Penukaran"
+            className="feature-icon"
+            style={{ width: "65px", height: "65px", objectFit: "contain" }}
+          />
           <h4>
             KEMUDAHAN
             <br />
             PENUKARAN
           </h4>
         </div>
+
         <div className="feature-item">
-          <span className="feature-icon">⏱️</span>
+          <img
+            src={responIcon}
+            alt="Fast Respon"
+            className="feature-icon"
+            style={{ width: "65px", height: "65px", objectFit: "contain" }}
+          />
           <h4>FAST RESPON</h4>
         </div>
       </section>
