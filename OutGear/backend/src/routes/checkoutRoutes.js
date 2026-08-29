@@ -1,48 +1,51 @@
 import { Router } from "express";
-import {
-  calculateDistanceKm,
-  calculateDeliveryFee,
-} from "../utils/distance.js";
-import { calculateLateFee } from "../utils/lateFee.js";
+import Order from "../models/Order.js";
+import Product from "../models/Product.js";
 
 const router = Router();
 
-router.post("/delivery-fee", (req, res) => {
-  const { userLocation, storeLocation, deliveryType } = req.body;
-
-  if (deliveryType === "pickup") {
-    return res.json({ distanceKm: 0, deliveryFee: 0 });
-  }
-
-  const distanceKm = calculateDistanceKm(
-    userLocation.lat,
-    userLocation.lng,
-    storeLocation.lat,
-    storeLocation.lng,
-  );
-
-  res.json({
-    distanceKm: Number(distanceKm.toFixed(2)),
-    deliveryFee: calculateDeliveryFee(distanceKm),
-  });
-});
-
-router.post("/late-fee", (req, res) => {
+router.post("/", async (req, res) => {
   try {
-    res.json(calculateLateFee(req.body));
+    const {
+      customer,
+      items,
+      deliveryType,
+      deliveryFee,
+      paymentMethod,
+      totalAmount,
+    } = req.body;
+
+    // Kurangi stok di database
+    for (const item of items) {
+      await Product.findOneAndUpdate(
+        { id: item.productId },
+        { $inc: { stock: -item.quantity } },
+      );
+    }
+
+    const newOrder = await Order.create({
+      orderNumber: `OG-${Math.floor(Math.random() * 100000000)}`,
+      customer,
+      items,
+      deliveryType,
+      deliveryFee,
+      paymentMethod,
+      totalAmount,
+    });
+
+    res.status(201).json(newOrder);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res
+      .status(400)
+      .json({ message: "Gagal memproses pesanan", error: error.message });
   }
 });
 
-router.post("/", (req, res) => {
-  // Prototype: tahap ini belum menyimpan order ke database.
-  const order = {
-    id: `ORD-${Date.now()}`,
-    ...req.body,
-    status: "Menunggu Pembayaran",
-  };
-  res.status(201).json(order);
+// Endpoint untuk halaman konfirmasi
+router.get("/:orderNumber", async (req, res) => {
+  const order = await Order.findOne({ orderNumber: req.params.orderNumber });
+  if (!order) return res.status(404).json({ message: "Order tidak ditemukan" });
+  res.json(order);
 });
 
 export default router;
