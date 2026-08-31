@@ -3,31 +3,29 @@ import { createContext, useContext, useState, useEffect } from "react";
 const CartContext = createContext(null);
 
 export function CartProvider({ children }) {
-  // Ambil data dari localStorage saat aplikasi pertama dimuat
   const [cart, setCart] = useState(() => {
     const saved = localStorage.getItem("outgear_cart");
     return saved ? JSON.parse(saved) : [];
   });
 
-  // Simpan ke localStorage setiap kali state cart berubah
   useEffect(() => {
     localStorage.setItem("outgear_cart", JSON.stringify(cart));
   }, [cart]);
 
-  function addToCart(product, mode, quantity = 1) {
+  // Tambahan parameter: duration, startDate, endDate
+  function addToCart(product, mode, quantity = 1, rentalData = null) {
     setCart((current) => {
-      // Cek apakah produk dengan mode yang sama sudah ada
-      const existing = current.find(
-        (item) => item.productId === product.id && item.mode === mode,
-      );
+      // Jika mode sewa, tambahkan logika durasi dan deposit
+      const duration = rentalData?.duration || 1;
+      const startDate = rentalData?.startDate || null;
+      const endDate = rentalData?.endDate || null;
 
-      if (existing) {
-        return current.map((item) =>
-          item.cartId === existing.cartId
-            ? { ...item, quantity: item.quantity + quantity }
-            : item,
-        );
-      }
+      // Hitung subtotal harga (Sewa x Durasi, atau Beli x 1)
+      const basePrice =
+        mode === "rent" ? product.rentPrice * duration : product.buyPrice;
+
+      // Logika Deposit: Hanya untuk mode sewa (misal flat Rp 50.000 per barang)
+      const deposit = mode === "rent" ? 50000 : 0;
 
       return [
         ...current,
@@ -36,7 +34,11 @@ export function CartProvider({ children }) {
           name: product.name,
           mode,
           quantity,
-          price: mode === "rent" ? product.rentPrice : product.buyPrice,
+          basePrice,
+          deposit,
+          startDate,
+          endDate,
+          duration,
           cartId: `${product.id}-${mode}-${Date.now()}`,
         },
       ];
@@ -51,11 +53,26 @@ export function CartProvider({ children }) {
     setCart([]);
   }
 
-  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  // Kalkulasi Total Keseluruhan (Harga + Deposit) x Kuantitas
+  const total = cart.reduce(
+    (sum, item) => sum + (item.basePrice + item.deposit) * item.quantity,
+    0,
+  );
+  const totalDeposit = cart.reduce(
+    (sum, item) => sum + item.deposit * item.quantity,
+    0,
+  );
 
   return (
     <CartContext.Provider
-      value={{ cart, total, addToCart, removeFromCart, clearCart }}
+      value={{
+        cart,
+        total,
+        totalDeposit,
+        addToCart,
+        removeFromCart,
+        clearCart,
+      }}
     >
       {children}
     </CartContext.Provider>
