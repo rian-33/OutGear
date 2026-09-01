@@ -1,14 +1,28 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useCart } from "../context/CartContext.jsx";
 import logoImg from "../assets/logo.png";
 
 export default function Navbar() {
   const { cart } = useCart();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const scrollToSection = (sectionId) => {
+    if (location.pathname !== "/") {
+      navigate("/");
+      setTimeout(() => {
+        const element = document.getElementById(sectionId);
+        if (element) element.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    } else {
+      const element = document.getElementById(sectionId);
+      if (element) element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   return (
     <header className="navbar">
       <Link className="brand-logo" to="/">
-        {/* 2. Gunakan tag img untuk menampilkan logo */}
         <img
           src={logoImg}
           alt="OutGear Logo"
@@ -19,8 +33,18 @@ export default function Navbar() {
       <nav className="nav-links">
         <Link to="/">Home</Link>
         <Link to="/products">Katalog</Link>
-        <a href="#kategori">Kategori</a>
-        <a href="#tentang">Tentang</a>
+        <button
+          onClick={() => scrollToSection("kategori")}
+          className="nav-btn-link"
+        >
+          Kategori
+        </button>
+        <button
+          onClick={() => scrollToSection("tentang")}
+          className="nav-btn-link"
+        >
+          Tentang
+        </button>
 
         <Link to="/checkout" className="cart-badge-btn">
           🛒 Keranjang <span className="badge">{cart.length}</span>
