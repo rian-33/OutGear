@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getProducts } from "../services/api.js";
+import { api } from "../services/api.js";
 import { useCart } from "../context/CartContext.jsx";
+
+// Import aset gambar ikon yang tersedia di folder assets
+import bootsImg from "../assets/boots.png";
+import tentImg from "../assets/tent.png";
+import backpackImg from "../assets/backpack.png";
+import gearImg from "../assets/gear2.png";
 
 // Data cadangan interaktif jika backend belum aktif
 const fallbackProducts = [
@@ -65,10 +71,12 @@ export default function Products() {
 
   useEffect(() => {
     setLoading(true);
-    getProducts({ q, category, maxPrice })
+    api
+      .getProducts({ q, category, maxPrice })
       .then((data) => {
-        if (!data || data.length === 0) {
-          // Gunakan fallback jika data kosong
+        const productsData = data.data || data;
+
+        if (!productsData || productsData.length === 0) {
           let filtered = fallbackProducts;
           if (category)
             filtered = filtered.filter((p) => p.category === category);
@@ -78,7 +86,7 @@ export default function Products() {
             );
           setProducts(filtered);
         } else {
-          setProducts(data);
+          setProducts(productsData);
         }
       })
       .catch(() => {
@@ -86,6 +94,21 @@ export default function Products() {
       })
       .finally(() => setLoading(false));
   }, [q, category, maxPrice]);
+
+  // Fungsi untuk memilih gambar berdasarkan kategori produk
+  const getProductImage = (cat) => {
+    switch (cat?.toLowerCase()) {
+      case "tas":
+      case "carrier":
+        return backpackImg;
+      case "sepatu":
+        return bootsImg;
+      case "tenda":
+        return tentImg;
+      default:
+        return gearImg;
+    }
+  };
 
   return (
     <main>
@@ -152,23 +175,26 @@ export default function Products() {
               {products.map((p) => (
                 <article className="product-card" key={p.id || p._id}>
                   <Link
-                    to={`/product/${p.id}`}
+                    to={`/product/${p.id || p._id}`}
                     className="card-img"
                     style={{ textDecoration: "none" }}
                   >
                     <span className="category-tag">{p.category}</span>
-                    {p.category === "Tas"
-                      ? "🎒"
-                      : p.category === "Sepatu"
-                        ? "👟"
-                        : p.category === "Tenda"
-                          ? "⛺"
-                          : "🧗"}
+                    {/* Mengganti emoji dengan tag img yang memanggil getProductImage */}
+                    <img
+                      src={getProductImage(p.category)}
+                      alt={p.name}
+                      style={{
+                        width: "50%",
+                        height: "50%",
+                        objectFit: "contain",
+                      }}
+                    />
                   </Link>
 
                   <div className="card-info">
                     <Link
-                      to={`/product/${p.id}`}
+                      to={`/product/${p.id || p._id}`}
                       style={{ textDecoration: "none" }}
                     >
                       <h3>{p.name}</h3>
@@ -192,7 +218,7 @@ export default function Products() {
 
                     <div className="card-actions">
                       <Link
-                        to={`/product/${p.id}`}
+                        to={`/product/${p.id || p._id}`}
                         className="btn-rent"
                         style={{
                           textAlign: "center",

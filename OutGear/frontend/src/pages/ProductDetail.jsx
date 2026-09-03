@@ -1,8 +1,74 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { api } from "../services/api.js";
 import { useCart } from "../context/CartContext.jsx";
-// Jika Anda sudah memiliki api.js, pastikan fungsi getProductById tersedia
-import { getProductById } from "../services/api.js";
+import bootsImg from "../assets/boots.png";
+import tentImg from "../assets/tent.png";
+import backpackImg from "../assets/backpack.png";
+import gearImg from "../assets/gear2.png";
+
+// Data cadangan jika produk dari backend belum tersedia
+const fallbackProducts = [
+  {
+    id: "tenda-2p",
+    name: "Tenda 2 Person Premium",
+    category: "Tenda",
+    description:
+      "Tenda double layer tahan badai untuk kapasitas 2 orang, sangat ringan dan mudah dipasang.",
+    buyPrice: 850000,
+    rentPrice: 60000,
+    stock: 8,
+  },
+  {
+    id: "carrier-60l",
+    name: "Carrier Gunung 60L Explorer",
+    category: "Tas",
+    description:
+      "Tas carrier ergonomis dengan ventilasi punggung optimal untuk pendakian 3-4 hari.",
+    buyPrice: 1250000,
+    rentPrice: 75000,
+    stock: 5,
+  },
+  {
+    id: "sepatu-hiking",
+    name: "Sepatu Hiking Waterproof",
+    category: "Sepatu",
+    description:
+      "Sepatu gunung anti air dengan traksi cengkeraman tinggi di segala medan.",
+    buyPrice: 950000,
+    rentPrice: 70000,
+    stock: 6,
+  },
+  {
+    id: "kompor-outdoor",
+    name: "Kompor Portable Windproof",
+    category: "Peralatan",
+    description:
+      "Kompor mini lipat tahan angin untuk memasak cepat di alam bebas.",
+    buyPrice: 450000,
+    rentPrice: 35000,
+    stock: 10,
+  },
+  {
+    id: "jaket-shell",
+    name: "Jaket Mountain Shell Windbreaker",
+    category: "Peralatan",
+    description: "Jaket windbreaker tahan air dan angin intensitas tinggi.",
+    buyPrice: 750000,
+    rentPrice: 50000,
+    stock: 7,
+  },
+  {
+    id: "headlamp-LED",
+    name: "Headlamp LED Ultra Bright",
+    category: "Peralatan",
+    description:
+      "Lampu kepala LED dengan daya tahan baterai lama dan mode SOS.",
+    buyPrice: 250000,
+    rentPrice: 20000,
+    stock: 15,
+  },
+];
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -11,152 +77,149 @@ export default function ProductDetail() {
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  // State untuk Mesin Penyewaan
+  const [quantity, setQuantity] = useState(1);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [duration, setDuration] = useState(0);
-  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     setLoading(true);
-    // Memanggil API backend untuk mengambil 1 produk
-    getProductById(id)
-      .then((data) => setProduct(data))
-      .catch((err) => console.error(err))
+    api
+      .getProductById(id)
+      .then((res) => {
+        const productData = res.data || res;
+        setProduct(productData);
+      })
+      .catch(() => {
+        const found = fallbackProducts.find(
+          (p) => p.id === id || p.id === String(id),
+        );
+        setProduct(found || fallbackProducts[0]);
+      })
       .finally(() => setLoading(false));
   }, [id]);
 
-  // Efek Kalkulasi Durasi Otomatis
-  useEffect(() => {
-    if (startDate && endDate) {
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-      const timeDiff = end.getTime() - start.getTime();
-      const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-
-      // Set minimal sewa 1 hari
-      if (daysDiff > 0) {
-        setDuration(daysDiff);
-      } else {
-        setDuration(0);
-      }
-    }
-  }, [startDate, endDate]);
-
-  const handleRent = () => {
-    if (!startDate || !endDate || duration <= 0) {
-      alert("Mohon pilih tanggal penyewaan yang valid!");
-      return;
-    }
-    addToCart(product, "rent", quantity, { startDate, endDate, duration });
-    alert("Berhasil ditambahkan ke keranjang sewa!");
-    navigate("/checkout");
-  };
-
-  const handleBuy = () => {
-    addToCart(product, "buy", quantity);
-    alert("Berhasil ditambahkan ke keranjang pembelian!");
-    navigate("/checkout");
-  };
-
-  if (loading)
+  if (loading) {
     return (
       <div style={{ padding: "100px", textAlign: "center" }}>
-        Memuat Detail Produk...
+        Memuat detail produk...
       </div>
     );
-  if (!product)
+  }
+
+  if (!product) {
     return (
       <div style={{ padding: "100px", textAlign: "center" }}>
-        Produk Tidak Ditemukan
+        Produk tidak ditemukan.
       </div>
     );
+  }
+
+  // Fungsi untuk memilih gambar berdasarkan kategori produk
+  const getProductImage = (category) => {
+    switch (category?.toLowerCase()) {
+      case "tas":
+      case "carrier":
+        return backpackImg;
+      case "sepatu":
+        return bootsImg;
+      case "tenda":
+        return tentImg;
+      default:
+        return gearImg;
+    }
+  };
+
+  const handleAddToCart = (type) => {
+    addToCart({
+      ...product,
+      cartId: `${product.id || product._id}-${type}-${Date.now()}`,
+      quantity,
+      type,
+      basePrice: type === "rent" ? product.rentPrice : product.buyPrice,
+      deposit: type === "rent" ? 50000 : 0,
+      rentalDates: type === "rent" ? { startDate, endDate } : null,
+    });
+    alert(
+      `Berhasil memasukkan ${product.name} (${type === "rent" ? "Sewa" : "Beli"}) ke keranjang!`,
+    );
+    navigate("/checkout");
+  };
 
   return (
     <main className="pdp-container">
       <div className="pdp-grid">
-        {/* GALERI GAMBAR */}
         <div className="pdp-gallery">
           <div className="main-image">
-            {product.category === "Tas"
-              ? "🎒"
-              : product.category === "Sepatu"
-                ? "👟"
-                : product.category === "Tenda"
-                  ? "⛺"
-                  : "🧗"}
+            {/* Menampilkan gambar aset lokal sesuai kategori produk */}
+            <img
+              src={getProductImage(product.category)}
+              alt={product.name}
+              style={{ width: "60%", height: "60%", objectFit: "contain" }}
+            />
           </div>
-          {/* Tempat untuk thumbnail di masa depan */}
         </div>
 
-        {/* INFO & MESIN PENYEWAAN */}
         <div className="pdp-info">
-          <span className="pdp-category">{product.category}</span>
+          <span className="pdp-category">
+            {product.category || "Outdoor Gear"}
+          </span>
           <h1>{product.name}</h1>
 
           <div className="pdp-pricing">
             <div className="price-tag">
-              <span>Sewa Per Hari</span>
-              <h2>Rp {product.rentPrice.toLocaleString("id-ID")}</h2>
+              <span>Tarif Sewa</span>
+              <h2>
+                Rp {product.rentPrice?.toLocaleString("id-ID")}{" "}
+                <small style={{ fontSize: "14px", fontWeight: "normal" }}>
+                  / hari
+                </small>
+              </h2>
             </div>
             <div className="price-tag outline">
-              <span>Beli Baru</span>
-              <h2>Rp {product.buyPrice.toLocaleString("id-ID")}</h2>
+              <span>Harga Beli Putus</span>
+              <h2>Rp {product.buyPrice?.toLocaleString("id-ID")}</h2>
             </div>
           </div>
 
           <p className="pdp-description">
             {product.description ||
-              "Peralatan premium dengan material tahan lama, cocok untuk menemani pendakian dan petualangan alam terbuka Anda."}
+              "Peralatan berkualitas tinggi untuk mendukung ekspedisi dan kenyamanan luar ruang Anda."}
           </p>
 
           <hr className="divider" />
 
-          {/* RENTAL ENGINE FORM */}
-          <div className="rental-engine">
-            <h3>Pilih Tanggal Sewa</h3>
+          {/* RENTAL ENGINE SECTION */}
+          <div className="rental-engine" style={{ marginBottom: "30px" }}>
+            <h3>Simulasi Sewa & Jadwal</h3>
             <div className="date-picker-group">
               <div>
-                <label>Tanggal Ambil</label>
+                <label>Tanggal Mulai Sewa</label>
                 <input
                   type="date"
                   value={startDate}
-                  min={new Date().toISOString().split("T")[0]}
                   onChange={(e) => setStartDate(e.target.value)}
                 />
               </div>
               <div>
-                <label>Tanggal Kembali</label>
+                <label>Tanggal Selesai</label>
                 <input
                   type="date"
                   value={endDate}
-                  min={startDate || new Date().toISOString().split("T")[0]}
                   onChange={(e) => setEndDate(e.target.value)}
                 />
               </div>
             </div>
-
-            {duration > 0 && (
-              <div className="rental-summary">
-                <p>
-                  Durasi: <strong>{duration} Hari</strong>
-                </p>
-                <p>
-                  Subtotal Sewa:{" "}
-                  <strong>
-                    Rp {(product.rentPrice * duration).toLocaleString("id-ID")}
-                  </strong>
-                </p>
-                <p className="deposit-note">
-                  *Terdapat tambahan uang jaminan (deposit) Rp 50.000 yang akan
-                  dikembalikan saat barang diretur.
-                </p>
-              </div>
-            )}
+            <div className="rental-summary">
+              <p>
+                📦 Jaminan Stok Tersedia:{" "}
+                <strong>{product.stock || 5} Unit</strong>
+              </p>
+              <p className="deposit-note">
+                *Biaya sewa belum termasuk deposit keamanan alat yang
+                dikembalikan saat barang kembali.
+              </p>
+            </div>
           </div>
-
-          <hr className="divider" />
 
           <div className="pdp-actions">
             <div className="quantity-control">
@@ -164,23 +227,23 @@ export default function ProductDetail() {
                 -
               </button>
               <span>{quantity}</span>
-              <button
-                onClick={() =>
-                  setQuantity((q) => Math.min(product.stock, q + 1))
-                }
-              >
-                +
-              </button>
+              <button onClick={() => setQuantity((q) => q + 1)}>+</button>
             </div>
-            <p className="stock-info">Sisa Stok: {product.stock}</p>
+            <span className="stock-info">Sisa Stok: {product.stock || 5}</span>
           </div>
 
           <div className="pdp-buttons">
-            <button className="btn-rent-large" onClick={handleRent}>
-              SEWA SEKARANG
+            <button
+              className="btn-rent-large"
+              onClick={() => handleAddToCart("rent")}
+            >
+              Sewa Sekarang
             </button>
-            <button className="btn-buy-large" onClick={handleBuy}>
-              BELI BARANG INI
+            <button
+              className="btn-buy-large"
+              onClick={() => handleAddToCart("buy")}
+            >
+              Beli Putus
             </button>
           </div>
         </div>
