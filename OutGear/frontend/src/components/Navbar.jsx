@@ -1,6 +1,7 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useCart } from "../context/CartContext.jsx";
 import logoImg from "../assets/logo.png";
+import cartImg from "../assets/cart_545525.png"; // Mengimpor gambar keranjang lokal
 
 export default function Navbar() {
   const { cart } = useCart();
@@ -47,7 +48,17 @@ export default function Navbar() {
         </button>
 
         <Link to="/checkout" className="cart-badge-btn">
-          🛒 Keranjang <span className="badge">{cart.length}</span>
+          {/* Menampilkan ikon gambar keranjang yang difilter menjadi warna putih */}
+          <img
+            src={cartImg}
+            alt="Keranjang"
+            style={{
+              width: "20px",
+              height: "20px",
+              filter: "brightness(0) invert(1)",
+            }}
+          />
+          Keranjang <span className="badge">{cart.length}</span>
         </Link>
       </nav>
     </header>

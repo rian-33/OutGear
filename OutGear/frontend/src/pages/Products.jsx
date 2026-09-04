@@ -2,14 +2,11 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../services/api.js";
 import { useCart } from "../context/CartContext.jsx";
-
-// Import aset gambar ikon yang tersedia di folder assets
 import bootsImg from "../assets/boots.png";
 import tentImg from "../assets/tent.png";
 import backpackImg from "../assets/backpack.png";
 import gearImg from "../assets/gear2.png";
 
-// Data cadangan interaktif jika backend belum aktif
 const fallbackProducts = [
   {
     id: "tenda-2p",
