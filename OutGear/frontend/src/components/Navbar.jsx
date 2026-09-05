@@ -1,7 +1,7 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useCart } from "../context/CartContext.jsx";
 import logoImg from "../assets/logo.png";
-import cartImg from "../assets/cart_545525.png"; // Mengimpor gambar keranjang lokal
+import cartImg from "../assets/cart_545525.png";
 
 export default function Navbar() {
   const { cart } = useCart();

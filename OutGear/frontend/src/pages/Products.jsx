@@ -6,6 +6,9 @@ import bootsImg from "../assets/boots.png";
 import tentImg from "../assets/tent.png";
 import backpackImg from "../assets/backpack.png";
 import gearImg from "../assets/gear2.png";
+import komporImg from "../assets/portable.png";
+import jaketImg from "../assets/jaket.png";
+import headlampImg from "../assets/headlamp.png";
 
 const fallbackProducts = [
   {
@@ -35,7 +38,7 @@ const fallbackProducts = [
   {
     id: "kompor-outdoor",
     name: "Kompor Portable Windproof",
-    category: "Peralatan",
+    category: "kompor",
     buyPrice: 450000,
     rentPrice: 35000,
     stock: 10,
@@ -43,7 +46,7 @@ const fallbackProducts = [
   {
     id: "jaket-shell",
     name: "Jaket Mountain Shell Windbreaker",
-    category: "Peralatan",
+    category: "jaket",
     buyPrice: 750000,
     rentPrice: 50000,
     stock: 7,
@@ -51,7 +54,7 @@ const fallbackProducts = [
   {
     id: "headlamp-LED",
     name: "Headlamp LED Ultra Bright",
-    category: "Peralatan",
+    category: "lampu",
     buyPrice: 250000,
     rentPrice: 20000,
     stock: 15,
@@ -102,6 +105,12 @@ export default function Products() {
         return bootsImg;
       case "tenda":
         return tentImg;
+      case "kompor":
+        return komporImg;
+      case "jaket":
+        return jaketImg;
+      case "lampu":
+        return headlampImg;
       default:
         return gearImg;
     }
