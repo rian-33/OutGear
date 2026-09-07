@@ -3,8 +3,13 @@ import SplashScreen from "./components/SplashScreen.jsx";
 import Navbar from "./components/Navbar.jsx";
 import Home from "./pages/Home.jsx";
 import Products from "./pages/Products.jsx";
-import ProductDetail from "./pages/ProductDetail.jsx"; // Import ditambahkan
+import ProductDetail from "./pages/ProductDetail.jsx";
 import Checkout from "./pages/Checkout.jsx";
+import igicon from "./assets/ig.png";
+import yticon from "./assets/youtube.png";
+import fbicon from "./assets/facebook.png";
+import tiktokicon from "./assets/tiktok.png";
+import waicon from "./assets/wa.png";
 
 export default function App() {
   return (
@@ -43,16 +48,66 @@ export default function App() {
 
           <div className="footer-contact">
             <h4>HUBUNGI KAMI</h4>
-            <a href="#">📞 WhatsApp Kami</a>
+            <a
+              href="#"
+              style={{ display: "flex", alignItems: "center", gap: "8px" }}
+            >
+              <img
+                src={waicon}
+                alt="WhatsApp"
+                style={{ width: "20px", height: "20px", objectFit: "contain" }}
+              />{" "}
+              WhatsApp Kami
+            </a>
             <a href="#">✉️ support@outgear.com</a>
           </div>
 
           <div className="footer-social">
             <h4>IKUTI KAMI</h4>
-            <a href="#">▶ Youtube</a>
-            <a href="#">📸 Instagram</a>
-            <a href="#">📘 Facebook</a>
-            <a href="#">🎵 Tiktok</a>
+            <a
+              href="#"
+              style={{ display: "flex", alignItems: "center", gap: "8px" }}
+            >
+              <img
+                src={yticon}
+                alt="Youtube"
+                style={{ width: "20px", height: "20px", objectFit: "contain" }}
+              />{" "}
+              Youtube
+            </a>
+            <a
+              href="#"
+              style={{ display: "flex", alignItems: "center", gap: "8px" }}
+            >
+              <img
+                src={igicon}
+                alt="Instagram"
+                style={{ width: "40px", height: "40px", objectFit: "contain" }}
+              />{" "}
+              Instagram
+            </a>
+            <a
+              href="#"
+              style={{ display: "flex", alignItems: "center", gap: "8px" }}
+            >
+              <img
+                src={fbicon}
+                alt="Facebook"
+                style={{ width: "20px", height: "20px", objectFit: "contain" }}
+              />{" "}
+              Facebook
+            </a>
+            <a
+              href="#"
+              style={{ display: "flex", alignItems: "center", gap: "8px" }}
+            >
+              <img
+                src={tiktokicon}
+                alt="Tiktok"
+                style={{ width: "20px", height: "20px", objectFit: "contain" }}
+              />{" "}
+              Tiktok
+            </a>
           </div>
         </div>
 

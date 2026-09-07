@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../services/api.js";
 import { useCart } from "../context/CartContext.jsx";
+
 import bootsImg from "../assets/boots.png";
 import tentImg from "../assets/tent.png";
 import backpackImg from "../assets/backpack.png";
@@ -116,6 +117,18 @@ export default function Products() {
     }
   };
 
+  // Daftar kategori dengan ikon untuk sidebar
+  const categoryList = [
+    { value: "", label: "Semua Kategori", icon: null },
+    { value: "Tenda", label: "Tenda & Shelter", icon: tentImg },
+    { value: "Tas", label: "Carrier & Tas", icon: backpackImg },
+    { value: "Sepatu", label: "Sepatu & Boots", icon: bootsImg },
+    { value: "kompor", label: "Kompor & Masak", icon: komporImg },
+    { value: "jaket", label: "Jaket & Pakaian", icon: jaketImg },
+    { value: "lampu", label: "Senter & Headlamp", icon: headlampImg },
+    { value: "Peralatan", label: "Peralatan & Gear", icon: gearImg },
+  ];
+
   return (
     <main>
       <section className="catalog-header">
@@ -141,19 +154,68 @@ export default function Products() {
 
           <div className="filter-group">
             <h3>Kategori Alat</h3>
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
+            {/* Mengganti <select> dengan daftar tombol kategori kustom */}
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "8px" }}
             >
-              <option value="">Semua Kategori</option>
-              <option value="Tenda">⛺ Tenda & Shelter</option>
-              <option value="Tas">🎒 Carrier & Tas</option>
-              <option value="Sepatu">👟 Sepatu & Boots</option>
-              <option value="Peralatan">🧗 Peralatan & Gear</option>
-            </select>
+              {categoryList.map((cat) => (
+                <button
+                  key={cat.label}
+                  onClick={() => setCategory(cat.value)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    width: "100%",
+                    padding: "10px 15px",
+                    background:
+                      category === cat.value
+                        ? "var(--badge-success)"
+                        : "transparent",
+                    border:
+                      category === cat.value
+                        ? "1px solid var(--primary)"
+                        : "1px solid transparent",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    transition: "all 0.2s ease",
+                  }}
+                >
+                  {cat.icon && (
+                    <img
+                      src={cat.icon}
+                      alt={cat.label}
+                      style={{
+                        width: "24px",
+                        height: "24px",
+                        objectFit: "contain",
+                        marginRight: "12px",
+                        // Efek abu-abu jika kategori tidak sedang dipilih
+                        filter:
+                          category === cat.value
+                            ? "none"
+                            : "grayscale(100%) opacity(60%)",
+                      }}
+                    />
+                  )}
+                  <span
+                    style={{
+                      fontWeight: category === cat.value ? "700" : "500",
+                      color:
+                        category === cat.value
+                          ? "var(--primary)"
+                          : "var(--text-dark)",
+                      marginLeft: cat.icon ? "0" : "36px",
+                    }}
+                  >
+                    {cat.label}
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div className="filter-group">
+          <div className="filter-group" style={{ marginTop: "30px" }}>
             <h3>Batas Harga Maksimal</h3>
             <input
               type="number"
@@ -186,7 +248,6 @@ export default function Products() {
                     style={{ textDecoration: "none" }}
                   >
                     <span className="category-tag">{p.category}</span>
-                    {/* Mengganti emoji dengan tag img yang memanggil getProductImage */}
                     <img
                       src={getProductImage(p.category)}
                       alt={p.name}
