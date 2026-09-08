@@ -1,4 +1,5 @@
 import Product from "../models/Product.js";
+import * as productService from "../services/productService.js";
 
 export const getProducts = async (req, res) => {
   try {
@@ -39,13 +40,11 @@ export const getProducts = async (req, res) => {
       },
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Gagal mengambil produk",
-        error: error.message,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Gagal mengambil produk",
+      error: error.message,
+    });
   }
 };
 
@@ -76,12 +75,10 @@ export const createProduct = async (req, res) => {
     const { name, description, category, rentPrice, buyPrice, stock } =
       req.body;
     if (!name || !category || (!rentPrice && !buyPrice)) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Field required: name, category, minimal satu harga",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Field required: name, category, minimal satu harga",
+      });
     }
 
     const newProduct = new Product({
@@ -98,13 +95,11 @@ export const createProduct = async (req, res) => {
       .status(201)
       .json({ success: true, message: "Produk dibuat", data: savedProduct });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Gagal membuat produk",
-        error: error.message,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Gagal membuat produk",
+      error: error.message,
+    });
   }
 };
 
@@ -144,4 +139,8 @@ export const deleteProduct = async (req, res) => {
       .status(500)
       .json({ success: false, message: "Gagal hapus", error: error.message });
   }
+};
+
+const catchAsync = (fn) => (req, res, next) => {
+  fn(req, res, next).catch(next);
 };
