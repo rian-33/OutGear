@@ -23,11 +23,19 @@ async function apiCall(endpoint, options = {}) {
 
   try {
     const response = await fetch(url, { ...defaultOptions, ...options });
-    const data = await response.json();
+
+    let data = null;
+    const contentType = response.headers.get("content-type") || "";
+    if (contentType.includes("application/json")) {
+      data = await response.json();
+    } else {
+      const text = await response.text();
+      if (text) data = { message: text };
+    }
 
     if (!response.ok) {
       throw new APIError(
-        data.message || `HTTP ${response.status}`,
+        data?.message || `HTTP ${response.status}`,
         response.status,
         data,
       );
@@ -44,13 +52,13 @@ async function apiCall(endpoint, options = {}) {
 // Mengekspor objek 'api' yang berisi kumpulan fungsi untuk dipanggil oleh komponen React
 export const api = {
   // Produk
-  getProducts: (filters = {}) => {
+  getProducts: (filters = {}, options = {}) => {
     const params = new URLSearchParams(filters);
-    return apiCall(`/products?${params}`);
+    return apiCall(`/products?${params}`, options);
   },
 
-  getProductById: (id) => {
-    return apiCall(`/products/${id}`);
+  getProductById: (id, options = {}) => {
+    return apiCall(`/products/${id}`, options);
   },
 
   createProduct: (data) => {
@@ -74,10 +82,11 @@ export const api = {
   },
 
   // Checkout & Order
-  createOrder: (orderData) => {
+  createOrder: (orderData, options = {}) => {
     return apiCall("/checkout", {
       method: "POST",
       body: JSON.stringify(orderData),
+      ...options,
     });
   },
 

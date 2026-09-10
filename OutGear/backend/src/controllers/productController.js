@@ -1,13 +1,46 @@
+import mongoose from "mongoose";
 import Product from "../models/Product.js";
-import * as productService from "../services/productService.js";
+import { AppError } from "../middleware/errorHandler.js";
+import { STORE_COORDS } from "../services/orderService.js";
 
-export const getProducts = async (req, res) => {
+const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+function resolveProductQuery(id) {
+  return mongoose.Types.ObjectId.isValid(id)
+    ? { $or: [{ _id: id }, { id }] }
+    : { id };
+}
+
+function createSlug(name) {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
+function normalizeProductData(data, existing = {}) {
+  const normalized = { ...data };
+  if (normalized.name !== undefined) normalized.name = String(normalized.name).trim();
+  if (normalized.category !== undefined) {
+    normalized.category = String(normalized.category).trim().toLowerCase();
+  }
+  if (normalized.id !== undefined) {
+    normalized.id = normalized.id.trim().toLowerCase();
+  } else if (normalized.name && (!existing.id || existing.name !== normalized.name)) {
+    normalized.id = createSlug(normalized.name);
+  }
+  if (!normalized.store) normalized.store = STORE_COORDS;
+  return normalized;
+}
+
+export const getProducts = async (req, res, next) => {
   try {
     const { category, maxPrice, q, sort, page = 1, limit = 12 } = req.query;
 
     const filter = {};
-    if (category) filter.category = category.toLowerCase();
-    if (q) filter.name = { $regex: q, $options: "i" };
+    if (category) filter.category = String(category).toLowerCase();
+    if (q) filter.name = { $regex: escapeRegex(q), $options: "i" };
     if (maxPrice) {
       filter.$or = [
         { rentPrice: { $lte: Number(maxPrice) } },
@@ -15,132 +48,98 @@ export const getProducts = async (req, res) => {
       ];
     }
 
-    let sortObj = { createdAt: -1 };
-    if (sort === "price-low") sortObj = { rentPrice: 1 };
-    if (sort === "price-high") sortObj = { rentPrice: -1 };
-    if (sort === "rating") sortObj = { rating: -1 };
+    const sortObj = { createdAt: -1 };
+    if (sort === "price-low") sortObj.rentPrice = 1;
+    if (sort === "price-high") sortObj.rentPrice = -1;
 
-    const skip = (page - 1) * limit;
+    const pageNum = Math.max(1, Number(page) || 1);
+    const limitNum = Math.min(50, Math.max(1, Number(limit) || 12));
+    const skip = (pageNum - 1) * limitNum;
 
-    const products = await Product.find(filter)
-      .sort(sortObj)
-      .skip(skip)
-      .limit(Number(limit));
-
-    const total = await Product.countDocuments(filter);
+    const [products, total] = await Promise.all([
+      Product.find(filter).sort(sortObj).skip(skip).limit(limitNum),
+      Product.countDocuments(filter),
+    ]);
 
     res.json({
       success: true,
       data: products,
       pagination: {
         total,
-        page: Number(page),
-        limit: Number(limit),
-        pages: Math.ceil(total / limit),
+        page: pageNum,
+        limit: limitNum,
+        pages: Math.ceil(total / limitNum),
       },
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Gagal mengambil produk",
-      error: error.message,
-    });
+    next(error);
   }
 };
 
-export const getProductById = async (req, res) => {
+export const getProductById = async (req, res, next) => {
   try {
     const { id } = req.params;
-    if (!id)
-      return res
-        .status(400)
-        .json({ success: false, message: "ID wajib diisi" });
 
-    const product = await Product.findOne({ $or: [{ _id: id }, { id: id }] });
-    if (!product)
-      return res
-        .status(404)
-        .json({ success: false, message: "Produk tidak ditemukan" });
+    const product = await Product.findOne(resolveProductQuery(id));
+    if (!product) {
+      throw new AppError("Produk tidak ditemukan", 404);
+    }
 
     res.json({ success: true, data: product });
   } catch (error) {
-    res
-      .status(500)
-      .json({ success: false, message: "Server error", error: error.message });
+    next(error);
   }
 };
 
-export const createProduct = async (req, res) => {
+export const createProduct = async (req, res, next) => {
   try {
-    const { name, description, category, rentPrice, buyPrice, stock } =
-      req.body;
-    if (!name || !category || (!rentPrice && !buyPrice)) {
-      return res.status(400).json({
-        success: false,
-        message: "Field required: name, category, minimal satu harga",
-      });
+    const productData = normalizeProductData(req.body);
+    const newProduct = await Product.create(productData);
+    res.status(201).json({
+      success: true,
+      message: "Produk dibuat",
+      data: newProduct,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateProduct = async (req, res, next) => {
+  try {
+    const existing = await Product.findOne(resolveProductQuery(req.params.id));
+    if (!existing) {
+      throw new AppError("Produk tidak ditemukan", 404);
     }
 
-    const newProduct = new Product({
-      name,
-      description,
-      category: category.toLowerCase(),
-      rentPrice: rentPrice || 0,
-      buyPrice: buyPrice || 0,
-      stock: stock || 0,
-    });
+    const updateData = normalizeProductData(req.body, existing);
 
-    const savedProduct = await newProduct.save();
-    res
-      .status(201)
-      .json({ success: true, message: "Produk dibuat", data: savedProduct });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Gagal membuat produk",
-      error: error.message,
-    });
-  }
-};
-
-export const updateProduct = async (req, res) => {
-  try {
-    const updatedProduct = await Product.findByIdAndUpdate(
-      req.params.id,
-      { $set: req.body },
+    const updatedProduct = await Product.findOneAndUpdate(
+      { _id: existing._id },
+      { $set: updateData },
       { new: true, runValidators: true },
     );
-    if (!updatedProduct)
-      return res
-        .status(404)
-        .json({ success: false, message: "Produk tidak ditemukan" });
+
     res.json({
       success: true,
       message: "Produk diupdate",
       data: updatedProduct,
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({ success: false, message: "Gagal update", error: error.message });
+    next(error);
   }
 };
 
-export const deleteProduct = async (req, res) => {
+export const deleteProduct = async (req, res, next) => {
   try {
-    const deletedProduct = await Product.findByIdAndDelete(req.params.id);
-    if (!deletedProduct)
-      return res
-        .status(404)
-        .json({ success: false, message: "Produk tidak ditemukan" });
+    const deletedProduct = await Product.findOneAndDelete(
+      resolveProductQuery(req.params.id),
+    );
+    if (!deletedProduct) {
+      throw new AppError("Produk tidak ditemukan", 404);
+    }
     res.json({ success: true, message: "Produk dihapus" });
   } catch (error) {
-    res
-      .status(500)
-      .json({ success: false, message: "Gagal hapus", error: error.message });
+    next(error);
   }
-};
-
-const catchAsync = (fn) => (req, res, next) => {
-  fn(req, res, next).catch(next);
 };

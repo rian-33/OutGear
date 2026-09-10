@@ -2,7 +2,7 @@ export const products = [
   {
     id: "tenda-2p",
     name: "Tenda 2 Person",
-    category: "Tenda",
+    category: "tenda",
     buyPrice: 850000,
     rentPrice: 60000,
     stock: 8,
@@ -11,7 +11,7 @@ export const products = [
   {
     id: "carrier-60l",
     name: "Carrier 60L",
-    category: "Tas",
+    category: "tas",
     buyPrice: 1250000,
     rentPrice: 75000,
     stock: 5,
@@ -20,7 +20,7 @@ export const products = [
   {
     id: "sepatu-hiking",
     name: "Sepatu Hiking",
-    category: "Sepatu",
+    category: "sepatu",
     buyPrice: 950000,
     rentPrice: 70000,
     stock: 6,
@@ -29,7 +29,7 @@ export const products = [
   {
     id: "kompor-outdoor",
     name: "Kompor Outdoor",
-    category: "Peralatan",
+    category: "peralatan",
     buyPrice: 450000,
     rentPrice: 35000,
     stock: 10,
@@ -38,7 +38,7 @@ export const products = [
   {
     id: "carrier-40l",
     name: "Carrier 40L Ultralight",
-    category: "Tas",
+    category: "tas",
     buyPrice: 950000,
     rentPrice: 55000,
     stock: 5,

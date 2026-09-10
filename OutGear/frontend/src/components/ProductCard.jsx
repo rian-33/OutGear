@@ -1,22 +1,51 @@
+import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext.jsx";
+import { getProductImage, formatRupiah } from "../utils/productImages.js";
+import { getCategoryLabel } from "../utils/fallbackData.js";
 
 export default function ProductCard({ product }) {
   const { addToCart } = useCart();
 
+  const detailTo = `/product/${product.id || product._id}`;
+
+  const handleQuickBuy = (e) => {
+    e.preventDefault();
+    addToCart(product, "buy");
+  };
+
   return (
-    <article className="product">
-      <div className="product-image">🏕️</div>
-      <span>{product.category}</span>
-      <h3>{product.name}</h3>
-      <p>
-        Sewa: <b>Rp {product.rentPrice.toLocaleString("id-ID")}/hari</b>
-      </p>
-      <p>
-        Beli: <b>Rp {product.buyPrice.toLocaleString("id-ID")}</b>
-      </p>
-      <div className="actions">
-        <button onClick={() => addToCart(product, "rent")}>Tambah Sewa</button>
-        <button onClick={() => addToCart(product, "buy")}>Tambah Beli</button>
+    <article className="product-card">
+      <Link to={detailTo} className="card-img">
+        <span className="category-tag">{getCategoryLabel(product.category)}</span>
+        <img
+          src={getProductImage(product.category)}
+          alt={product.name}
+          className="card-product-img"
+        />
+      </Link>
+
+      <div className="card-info">
+        <Link to={detailTo}>
+          <h3>{product.name}</h3>
+        </Link>
+
+        <div className="price-box">
+          <p>
+            Sewa: <strong>Rp {formatRupiah(product.rentPrice)}</strong> / hari
+          </p>
+          <p>
+            Beli: <strong>Rp {formatRupiah(product.buyPrice)}</strong>
+          </p>
+        </div>
+
+        <div className="card-actions">
+          <Link to={detailTo} className="btn-rent">
+            Detail / Sewa
+          </Link>
+          <button className="btn-buy" onClick={handleQuickBuy}>
+            + Beli
+          </button>
+        </div>
       </div>
     </article>
   );

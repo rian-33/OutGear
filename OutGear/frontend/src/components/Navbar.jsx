@@ -4,7 +4,7 @@ import logoImg from "../assets/logo.png";
 import cartImg from "../assets/cart_545525.png";
 
 export default function Navbar() {
-  const { cart } = useCart();
+  const { itemCount } = useCart();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -58,7 +58,7 @@ export default function Navbar() {
               filter: "brightness(0) invert(1)",
             }}
           />
-          Keranjang <span className="badge">{cart.length}</span>
+          Keranjang <span className="badge">{itemCount}</span>
         </Link>
       </nav>
     </header>

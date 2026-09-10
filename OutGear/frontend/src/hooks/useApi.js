@@ -1,45 +1,33 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
-export function useApi(url, options = {}) {
+export function useApi(fetcher, dependencies = []) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!url) {
-      setLoading(false);
-      return;
-    }
-
     const controller = new AbortController();
+    let active = true;
 
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(url, {
-          signal: controller.signal,
-          ...options,
-        });
+    setLoading(true);
+    setError(null);
 
-        if (!response.ok)
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    fetcher(controller.signal)
+      .then((result) => {
+        if (active) setData(result);
+      })
+      .catch((err) => {
+        if (active && err.name !== "AbortError") setError(err);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
 
-        const json = await response.json();
-        setData(json.data || json); // Mengambil .data jika ada dari response success backend
-        setError(null);
-      } catch (err) {
-        if (err.name !== "AbortError") {
-          setError(err.message);
-          console.error("Fetch error:", err);
-        }
-      } finally {
-        setLoading(false);
-      }
+    return () => {
+      active = false;
+      controller.abort();
     };
-
-    fetchData();
-    return () => controller.abort();
-  }, [url, options]);
+  }, dependencies);
 
   return { data, loading, error };
 }

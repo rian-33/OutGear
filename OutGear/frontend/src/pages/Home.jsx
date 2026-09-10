@@ -8,37 +8,42 @@ import bayarIcon from "../assets/kemudahan pembayaran.png";
 import tukarIcon from "../assets/kemudahan penukaran.png";
 import responIcon from "../assets/fast respon.png";
 
+const slides = [
+  {
+    title: "PERLENGKAPAN OUTDOOR PREMIUM\nUNTUK PECINTA ALAM SEJATI!",
+    subtitle: "OUTGEAR OUTDOOR GEAR",
+    image:
+      "https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&q=80",
+  },
+  {
+    title: "SIAPKAN PETUALANGANMU\nDENGAN PERALATAN TERBAIK",
+    subtitle: "EKSPLORASI TANPA BATAS",
+    image:
+      "https://images.unsplash.com/photo-1522163182402-834f871fd851?auto=format&fit=crop&q=80",
+  },
+];
+
+const categories = [
+  { img: tasImg, label: "Bags", count: 145 },
+  { img: sepatuImg, label: "Shoes", count: 267 },
+  { img: tendaImg, label: "Tents", count: 89 },
+  { img: gearImg, label: "Gear", count: 312 },
+];
+
 export default function Home() {
-  // --- LOGIKA SLIDER (CAROUSEL) ---
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  const slides = [
-    {
-      title: "PERLENGKAPAN OUTDOOR PREMIUM\nUNTUK PECINTA ALAM SEJATI!",
-      subtitle: "OUTGEAR OUTDOOR GEAR",
-      image:
-        "https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&q=80",
-    },
-    {
-      title: "SIAPKAN PETUALANGANMU\nDENGAN PERALATAN TERBAIK",
-      subtitle: "EKSPLORASI TANPA BATAS",
-      image:
-        "https://images.unsplash.com/photo-1522163182402-834f871fd851?auto=format&fit=crop&q=80",
-    },
-  ];
-
-  // Efek geser otomatis setiap 5 detik
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
     }, 5000);
     return () => clearInterval(timer);
-  }, [slides.length]);
+  }, [currentSlide]);
 
   const nextSlide = () =>
-    setCurrentSlide(currentSlide === slides.length - 1 ? 0 : currentSlide + 1);
+    setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
   const prevSlide = () =>
-    setCurrentSlide(currentSlide === 0 ? slides.length - 1 : currentSlide - 1);
+    setCurrentSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
 
   return (
     <main>
@@ -62,10 +67,10 @@ export default function Home() {
           ))}
         </div>
 
-        <button className="slider-btn prev" onClick={prevSlide}>
+        <button className="slider-btn prev" onClick={prevSlide} aria-label="Slide sebelumnya">
           &#10094;
         </button>
-        <button className="slider-btn next" onClick={nextSlide}>
+        <button className="slider-btn next" onClick={nextSlide} aria-label="Slide berikutnya">
           &#10095;
         </button>
 
@@ -83,13 +88,7 @@ export default function Home() {
       {/* 2. WELCOME FEATURES (4 IKON) */}
       <section className="features-bar">
         <div className="feature-item">
-          {/* 2. Ganti emoji dengan tag img */}
-          <img
-            src={garansiIcon}
-            alt="Garansi"
-            className="feature-icon"
-            style={{ width: "65px", height: "65px", objectFit: "contain" }}
-          />
+          <img src={garansiIcon} alt="Garansi" className="feature-icon" />
           <h4>
             GARANSI TAS
             <br />
@@ -98,12 +97,7 @@ export default function Home() {
         </div>
 
         <div className="feature-item">
-          <img
-            src={bayarIcon}
-            alt="Pembayaran"
-            className="feature-icon"
-            style={{ width: "65px", height: "65px", objectFit: "contain" }}
-          />
+          <img src={bayarIcon} alt="Pembayaran" className="feature-icon" />
           <h4>
             PEMBAYARAN
             <br />
@@ -112,12 +106,7 @@ export default function Home() {
         </div>
 
         <div className="feature-item">
-          <img
-            src={tukarIcon}
-            alt="Penukaran"
-            className="feature-icon"
-            style={{ width: "65px", height: "65px", objectFit: "contain" }}
-          />
+          <img src={tukarIcon} alt="Penukaran" className="feature-icon" />
           <h4>
             KEMUDAHAN
             <br />
@@ -126,95 +115,24 @@ export default function Home() {
         </div>
 
         <div className="feature-item">
-          <img
-            src={responIcon}
-            alt="Fast Respon"
-            className="feature-icon"
-            style={{ width: "65px", height: "65px", objectFit: "contain" }}
-          />
+          <img src={responIcon} alt="Fast Respon" className="feature-icon" />
           <h4>FAST RESPON</h4>
         </div>
       </section>
 
-      {/* 3. KATEGORI PRODUK (Kode Lama Anda) */}
+      {/* 3. KATEGORI PRODUK */}
       <section id="kategori" className="section">
         <h2 className="section-title">JELAJAHI KATEGORI</h2>
-        <div
-          className="grid"
-          style={{ gridTemplateColumns: "repeat(4, 1fr)", gap: "16px" }}
-        >
-          <article className="product" style={{ textAlign: "center" }}>
-            <div
-              className="product-image"
-              style={{
-                height: "140px",
-                padding: "10px",
-                background: "#f0f0f0",
-              }}
-            >
-              <img
-                src={tasImg}
-                alt="Tas Hiking"
-                style={{ width: "100%", height: "100%", objectFit: "contain" }}
-              />
-            </div>
-            <h3>Bags</h3>
-            <p>145 Produk</p>
-          </article>
-          <article className="product" style={{ textAlign: "center" }}>
-            <div
-              className="product-image"
-              style={{
-                height: "140px",
-                padding: "10px",
-                background: "#f0f0f0",
-              }}
-            >
-              <img
-                src={sepatuImg}
-                alt="Sepatu Hiking"
-                style={{ width: "100%", height: "100%", objectFit: "contain" }}
-              />
-            </div>
-            <h3>Shoes</h3>
-            <p>267 Produk</p>
-          </article>
-          <article className="product" style={{ textAlign: "center" }}>
-            <div
-              className="product-image"
-              style={{
-                height: "140px",
-                padding: "10px",
-                background: "#f0f0f0",
-              }}
-            >
-              <img
-                src={tendaImg}
-                alt="Tenda"
-                style={{ width: "100%", height: "100%", objectFit: "contain" }}
-              />
-            </div>
-            <h3>Tents</h3>
-            <p>89 Produk</p>
-          </article>
-          <article className="product" style={{ textAlign: "center" }}>
-            <div
-              className="product-image"
-              style={{
-                height: "140px",
-                padding: "10px",
-                background: "#f0f0f0",
-              }}
-            >
-              <img
-                src={gearImg}
-                alt="Peralatan Gear"
-                style={{ width: "100%", height: "100%", objectFit: "contain" }}
-              />
-            </div>
-            <h3>Gear</h3>
-            <p>312 Produk</p>
-          </article>
+        <div className="category-grid">
+          {categories.map((cat) => (
+            <article key={cat.label} className="category-card">
+              <div className="category-img-wrapper">
+                <img src={cat.img} alt={cat.label} className="category-img" />
+              </div>
+              <h3>{cat.label}</h3>
+              <p>{cat.count} Produk</p>
+            </article>
+          ))}
         </div>
       </section>
 

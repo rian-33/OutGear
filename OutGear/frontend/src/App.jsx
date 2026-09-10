@@ -1,15 +1,12 @@
 import { Route, Routes } from "react-router-dom";
 import SplashScreen from "./components/SplashScreen.jsx";
 import Navbar from "./components/Navbar.jsx";
+import Footer from "./components/Footer.jsx";
 import Home from "./pages/Home.jsx";
 import Products from "./pages/Products.jsx";
 import ProductDetail from "./pages/ProductDetail.jsx";
 import Checkout from "./pages/Checkout.jsx";
-import igicon from "./assets/ig.png";
-import yticon from "./assets/youtube.png";
-import fbicon from "./assets/facebook.png";
-import tiktokicon from "./assets/tiktok.png";
-import waicon from "./assets/wa.png";
+import NotFound from "./pages/NotFound.jsx";
 
 export default function App() {
   return (
@@ -20,103 +17,13 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/products" element={<Products />} />
-        {/* Rute halaman detail produk yang sebelumnya hilang telah ditambahkan */}
         <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/checkout" element={<Checkout />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
 
-      {/* FOOTER BARU (PREMIUM) */}
-      <footer className="footer-complex">
-        <div className="footer-grid">
-          <div className="footer-brand">
-            <span className="logo-text">
-              Out<strong>Gear</strong>
-            </span>
-            <p>
-              <strong>Jam Operasional</strong>
-            </p>
-            <p>Senin - Jumat: 08.00 - 16.00 WIB</p>
-            <p>Sabtu: 08.00 - 13.00 WIB</p>
-          </div>
+      <Footer />
 
-          <div className="footer-links">
-            <h4>INFORMASI</h4>
-            <a href="#">Syarat & Ketentuan Garansi</a>
-            <a href="#">FAQ Point</a>
-            <a href="#">Kebijakan Privasi</a>
-          </div>
-
-          <div className="footer-contact">
-            <h4>HUBUNGI KAMI</h4>
-            <a
-              href="#"
-              style={{ display: "flex", alignItems: "center", gap: "8px" }}
-            >
-              <img
-                src={waicon}
-                alt="WhatsApp"
-                style={{ width: "20px", height: "20px", objectFit: "contain" }}
-              />{" "}
-              WhatsApp Kami
-            </a>
-            <a href="#">✉️ support@outgear.com</a>
-          </div>
-
-          <div className="footer-social">
-            <h4>IKUTI KAMI</h4>
-            <a
-              href="#"
-              style={{ display: "flex", alignItems: "center", gap: "8px" }}
-            >
-              <img
-                src={yticon}
-                alt="Youtube"
-                style={{ width: "20px", height: "20px", objectFit: "contain" }}
-              />{" "}
-              Youtube
-            </a>
-            <a
-              href="#"
-              style={{ display: "flex", alignItems: "center", gap: "8px" }}
-            >
-              <img
-                src={igicon}
-                alt="Instagram"
-                style={{ width: "40px", height: "40px", objectFit: "contain" }}
-              />{" "}
-              Instagram
-            </a>
-            <a
-              href="#"
-              style={{ display: "flex", alignItems: "center", gap: "8px" }}
-            >
-              <img
-                src={fbicon}
-                alt="Facebook"
-                style={{ width: "20px", height: "20px", objectFit: "contain" }}
-              />{" "}
-              Facebook
-            </a>
-            <a
-              href="#"
-              style={{ display: "flex", alignItems: "center", gap: "8px" }}
-            >
-              <img
-                src={tiktokicon}
-                alt="Tiktok"
-                style={{ width: "20px", height: "20px", objectFit: "contain" }}
-              />{" "}
-              Tiktok
-            </a>
-          </div>
-        </div>
-
-        <div className="footer-bottom-text">
-          Copyright 2026 © OutGear Outdoor. All Rights Reserved.
-        </div>
-      </footer>
-
-      {/* TOMBOL WHATSAPP MELAYANG (KODE SVG DIPERBAIKI) */}
       <a
         href="https://wa.me/628123456789"
         className="float-wa"

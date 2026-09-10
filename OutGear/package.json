@@ -1,5 +1,19 @@
 {
-  "dependencies": {
-    "mongoose": "^9.9.3"
+  "name": "outgear",
+  "version": "1.0.0",
+  "private": true,
+  "description": "OutGear - E-commerce peralatan outdoor (sewa & beli)",
+  "scripts": {
+    "install:all": "npm install --prefix backend && npm install --prefix frontend",
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "seed": "npm run seed --prefix backend",
+    "build:frontend": "npm run build --prefix frontend",
+    "lint": "concurrently \"npm run lint --prefix backend\" \"npm run lint --prefix frontend\"",
+    "test": "concurrently \"npm run test --prefix backend\" \"npm run test --prefix frontend\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
   }
 }

@@ -12,7 +12,13 @@ mongoose
     await Product.deleteMany({});
 
     console.log("Memasukkan data baru...");
-    await Product.insertMany(products);
+    await Product.insertMany(
+      products.map((p) => ({
+        ...p,
+        description: "",
+        category: p.category.toLowerCase(),
+      })),
+    );
 
     console.log("✅ Seed berhasil!");
     process.exit();

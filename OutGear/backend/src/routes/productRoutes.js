@@ -6,22 +6,15 @@ import {
   updateProduct,
   deleteProduct,
 } from "../controllers/productController.js";
+import { validate, productSchema, productUpdateSchema } from "../middleware/validate.js";
 
 const router = Router();
 
-// Middleware Logging Khusus Produk
-router.use((req, res, next) => {
-  console.log(`Product route: ${req.method} ${req.path}`);
-  next();
-});
-
-// GET routes
 router.get("/", getProducts);
 router.get("/:id", getProductById);
 
-// POST, PUT, DELETE routes
-router.post("/", createProduct);
-router.put("/:id", updateProduct);
+router.post("/", validate(productSchema), createProduct);
+router.put("/:id", validate(productUpdateSchema), updateProduct);
 router.delete("/:id", deleteProduct);
 
 export default router;
