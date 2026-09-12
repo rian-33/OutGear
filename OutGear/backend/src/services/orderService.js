@@ -8,6 +8,34 @@ export const STORE_COORDS = { lat: -5.1477, lng: 119.4327 };
 export const FLAT_DELIVERY_FEE = 50000;
 export const TAX_RATE = 0.1;
 
+export const ORDER_STATUS = {
+  waitingPayment: "Menunggu Pembayaran",
+  processed: "Diproses",
+  shipped: "Dikirim",
+  completed: "Selesai",
+  cancelled: "Dibatalkan",
+};
+
+export const ORDER_FLOW = [
+  ORDER_STATUS.waitingPayment,
+  ORDER_STATUS.processed,
+  ORDER_STATUS.shipped,
+  ORDER_STATUS.completed,
+];
+
+export const CANCELLABLE_FROM = new Set([
+  ORDER_STATUS.waitingPayment,
+  ORDER_STATUS.processed,
+]);
+
+export function canTransitionStatus(from, to) {
+  if (from === to) return true;
+  if (to === ORDER_STATUS.cancelled && CANCELLABLE_FROM.has(from)) return true;
+  const fromIndex = ORDER_FLOW.indexOf(from);
+  const toIndex = ORDER_FLOW.indexOf(to);
+  return fromIndex !== -1 && toIndex === fromIndex + 1;
+}
+
 export function generateOrderNumber() {
   const prefix = "OG";
   const timestamp = Date.now().toString(36).toUpperCase().slice(-4);
@@ -97,6 +125,16 @@ export async function deductStock(items, session) {
   }
 }
 
+export async function restoreStock(items, session) {
+  for (const item of items) {
+    await Product.updateOne(
+      { id: item.productId },
+      { $inc: { stock: item.quantity } },
+      { session },
+    );
+  }
+}
+
 export function buildServerPricing(clientBody, pricing) {
   const { subtotal, tax, deliveryFee, totalAmount, lines } = pricing;
   const round = (n) => Math.round(Number(n) || 0);
@@ -115,10 +153,4 @@ export function buildServerPricing(clientBody, pricing) {
     lines,
     serverVerified,
   };
-}
-
-export async function processOrder(items, session) {
-  const { lines, subtotal } = await verifyAndPriceItems(items, session);
-  await deductStock(items, session);
-  return { lines, subtotal };
 }

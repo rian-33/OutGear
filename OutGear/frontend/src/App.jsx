@@ -2,11 +2,17 @@ import { Route, Routes } from "react-router-dom";
 import SplashScreen from "./components/SplashScreen.jsx";
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Home from "./pages/Home.jsx";
 import Products from "./pages/Products.jsx";
 import ProductDetail from "./pages/ProductDetail.jsx";
 import Checkout from "./pages/Checkout.jsx";
 import NotFound from "./pages/NotFound.jsx";
+import Login from "./pages/Login.jsx";
+import Register from "./pages/Register.jsx";
+import Account from "./pages/Account.jsx";
+import OrderTracking from "./pages/OrderTracking.jsx";
+import Admin from "./pages/Admin.jsx";
 
 export default function App() {
   return (
@@ -19,6 +25,25 @@ export default function App() {
         <Route path="/products" element={<Products />} />
         <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/checkout" element={<Checkout />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route
+          path="/account"
+          element={
+            <ProtectedRoute>
+              <Account />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute admin>
+              <Admin />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/order/:orderNumber" element={<OrderTracking />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
 

@@ -6,6 +6,7 @@ import morgan from "morgan";
 import rateLimit from "express-rate-limit";
 import productRoutes from "./routes/productRoutes.js";
 import checkoutRoutes from "./routes/checkoutRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 import { env } from "./config/env.js";
 import { notFound, errorHandler } from "./middleware/errorHandler.js";
 
@@ -38,6 +39,7 @@ const limiter = rateLimit({
 app.use("/api", limiter);
 
 // ===== ROUTES =====
+app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/checkout", checkoutRoutes);
 
@@ -67,6 +69,12 @@ async function startServer() {
     if (error.code === "EADDRINUSE") {
       console.error(
         `❌ Port ${env.port} is already in use. Stop the existing backend process or set another PORT in .env.`,
+      );
+    } else if (error.name === "MongooseServerSelectionError") {
+      console.error(
+        `❌ MongoDB tidak dapat dijangkau (${env.mongoUri}).`,
+        `\n   Pastikan MongoDB sudah berjalan: jalankan 'mongod', atau lewat Docker: docker run -d -p 27017:27017 --name mongo mongo.`,
+        `\n   Setelah MongoDB aktif, mulai ulang backend (npm run dev).`,
       );
     } else {
       console.error("❌ Server startup failed:", error);

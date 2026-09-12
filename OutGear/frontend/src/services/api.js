@@ -2,6 +2,25 @@
 const API_BASE_URL =
   import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
+const TOKEN_KEY = "outgear_token";
+
+export function getToken() {
+  try {
+    return localStorage.getItem(TOKEN_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function setToken(token) {
+  try {
+    if (token) localStorage.setItem(TOKEN_KEY, token);
+    else localStorage.removeItem(TOKEN_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
 // Kelas khusus untuk menangani error dari API
 class APIError extends Error {
   constructor(message, status, data) {
@@ -14,9 +33,11 @@ class APIError extends Error {
 // Fungsi utama (generic) untuk melakukan fetch dengan penanganan error otomatis
 async function apiCall(endpoint, options = {}) {
   const url = `${API_BASE_URL}${endpoint}`;
+  const token = getToken();
   const defaultOptions = {
     headers: {
       "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     },
   };
@@ -90,7 +111,59 @@ export const api = {
     });
   },
 
-  getOrder: (orderNo) => {
-    return apiCall(`/checkout/${orderNo}`);
+  getOrder: (orderNo, options = {}) => {
+    return apiCall(`/checkout/${orderNo}`, options);
+  },
+
+  getMyOrders: (params = {}, options = {}) => {
+    const query = new URLSearchParams(params);
+    return apiCall(`/checkout/orders/me?${query}`, options);
+  },
+
+  payOrder: (orderNo) => {
+    return apiCall(`/checkout/${orderNo}/pay`, { method: "POST" });
+  },
+
+  cancelOrder: (orderNo) => {
+    return apiCall(`/checkout/${orderNo}/cancel`, { method: "POST" });
+  },
+
+  // Admin: orders
+  getAllOrders: (params = {}) => {
+    const query = new URLSearchParams(params);
+    return apiCall(`/checkout/orders?${query}`);
+  },
+
+  updateOrderStatus: (orderNo, status) => {
+    return apiCall(`/checkout/orders/${orderNo}/status`, {
+      method: "PATCH",
+      body: JSON.stringify({ status }),
+    });
+  },
+
+  // Auth
+  register: (data) => {
+    return apiCall("/auth/register", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  },
+
+  login: (data) => {
+    return apiCall("/auth/login", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  },
+
+  getMe: () => {
+    return apiCall("/auth/me");
+  },
+
+  updateMe: (data) => {
+    return apiCall("/auth/me", {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
   },
 };

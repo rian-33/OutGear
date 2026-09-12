@@ -81,3 +81,36 @@ export const productUpdateSchema = z.object({
     })
     .optional(),
 });
+
+export const registerSchema = z.object({
+  name: z.string().min(1, "Nama lengkap wajib diisi"),
+  email: z.string().email("Email tidak valid"),
+  password: z.string().min(8, "Password minimal 8 karakter"),
+  phone: z.string().optional(),
+  address: z.string().optional(),
+});
+
+export const loginSchema = z.object({
+  email: z.string().email("Email tidak valid"),
+  password: z.string().min(1, "Password wajib diisi"),
+});
+
+export const profileUpdateSchema = z.object({
+  name: z.string().min(1, "Nama lengkap wajib diisi").optional(),
+  phone: z.string().optional(),
+  address: z.string().optional(),
+  password: z.string().min(8, "Password minimal 8 karakter").optional(),
+});
+
+export const orderStatusSchema = z.object({
+  status: z.enum(
+    [
+      "Menunggu Pembayaran",
+      "Diproses",
+      "Dikirim",
+      "Selesai",
+      "Dibatalkan",
+    ],
+    "Status tidak valid",
+  ),
+});

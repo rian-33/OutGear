@@ -24,6 +24,7 @@ const destinationSchema = new mongoose.Schema(
 const orderSchema = new mongoose.Schema(
   {
     orderNumber: { type: String, required: true, unique: true, index: true },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", index: true },
     customer: {
       name: { type: String, required: true },
       email: { type: String, trim: true, lowercase: true },
@@ -38,6 +39,7 @@ const orderSchema = new mongoose.Schema(
     destination: destinationSchema,
     totalAmount: { type: Number, required: true, min: 0 },
     paymentMethod: { type: String, required: true },
+    paidAt: { type: Date },
     status: {
       type: String,
       default: "Menunggu Pembayaran",

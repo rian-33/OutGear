@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const requiredVars = ["PORT", "MONGO_URI"];
+const requiredVars = ["PORT", "MONGO_URI", "JWT_SECRET"];
 
 for (const v of requiredVars) {
   if (!process.env[v]) {
@@ -17,4 +17,8 @@ export const env = {
   mongoUri: process.env.MONGO_URI,
   nodeEnv: process.env.NODE_ENV || "development",
   clientUrl: process.env.CLIENT_URL || "http://localhost:5173",
+  jwtSecret: process.env.JWT_SECRET,
+  jwtExpiresIn: process.env.JWT_EXPIRES_IN || "7d",
+  adminEmail: process.env.ADMIN_EMAIL || "",
+  adminPassword: process.env.ADMIN_PASSWORD || "",
 };

@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import tasImg from "../assets/tas.png";
-import sepatuImg from "../assets/sepatu.png";
-import tendaImg from "../assets/tenda.png";
-import gearImg from "../assets/gear.png";
+import tasImg from "../assets/backpack.png";
+import sepatuImg from "../assets/boots.png";
+import tendaImg from "../assets/tent.png";
+import gearImg from "../assets/gear2.png";
 import garansiIcon from "../assets/garansi.png";
 import bayarIcon from "../assets/kemudahan pembayaran.png";
 import tukarIcon from "../assets/kemudahan penukaran.png";

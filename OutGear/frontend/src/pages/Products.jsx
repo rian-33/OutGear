@@ -10,7 +10,7 @@ export default function Products() {
   const [maxPrice, setMaxPrice] = useState("");
 
   const filters = { q, category, maxPrice };
-  const { data, loading } = useApi(
+  const { data, loading, error } = useApi(
     (signal) => api.getProducts(filters, { signal }),
     [q, category, maxPrice],
   );
@@ -28,6 +28,15 @@ export default function Products() {
           petualangan Anda
         </p>
       </section>
+
+      {error && (
+        <div className="api-warning">
+          <strong>⚠️ Backend tidak terhubung.</strong> Pastikan MongoDB dan
+          server backend sudah berjalan (<code>npm run seed</code> lalu{" "}
+          <code>npm run dev</code> dari folder akar), kemudian muat ulang
+          halaman. Data di bawah hanyalah contoh.
+        </div>
+      )}
 
       <section className="catalog-container">
         <aside className="sidebar">

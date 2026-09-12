@@ -1,12 +1,28 @@
+import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useCart } from "../context/CartContext.jsx";
+import { useAuth } from "../context/AuthContext.jsx";
 import logoImg from "../assets/logo.png";
 import cartImg from "../assets/cart_545525.png";
 
 export default function Navbar() {
   const { itemCount } = useCart();
+  const { user, isAdmin, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    const handleClick = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
 
   const scrollToSection = (sectionId) => {
     if (location.pathname !== "/") {
@@ -47,8 +63,50 @@ export default function Navbar() {
           Tentang
         </button>
 
+        <div className="account-menu-wrapper" ref={menuRef}>
+          <button
+            onClick={() => setMenuOpen((o) => !o)}
+            className="nav-btn-link account-trigger"
+          >
+            {user ? user.name.split(" ")[0] : "Akun"} ▾
+          </button>
+          {menuOpen && (
+            <div className="account-dropdown">
+              {!user ? (
+                <>
+                  <Link to="/login" onClick={() => setMenuOpen(false)}>
+                    Masuk
+                  </Link>
+                  <Link to="/register" onClick={() => setMenuOpen(false)}>
+                    Daftar
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link to="/account" onClick={() => setMenuOpen(false)}>
+                    Akun Saya
+                  </Link>
+                  {isAdmin && (
+                    <Link to="/admin" onClick={() => setMenuOpen(false)}>
+                      Panel Admin
+                    </Link>
+                  )}
+                  <button
+                    onClick={() => {
+                      setMenuOpen(false);
+                      logout();
+                      navigate("/");
+                    }}
+                  >
+                    Keluar
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+
         <Link to="/checkout" className="cart-badge-btn">
-          {/* Menampilkan ikon gambar keranjang yang difilter menjadi warna putih */}
           <img
             src={cartImg}
             alt="Keranjang"

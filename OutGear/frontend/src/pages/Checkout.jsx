@@ -149,12 +149,13 @@ export default function Checkout() {
 
       const response = await api.createOrder(orderData);
       const serverTotal = response.serverPricing?.totalAmount;
+      const orderNumber = response.data?.orderNumber || "";
       showToast(
-        `Pesanan ${response.data?.orderNumber || ""} berhasil dibuat! Total: Rp ${formatRupiah(serverTotal || grandTotal)}`,
+        `Pesanan ${orderNumber} berhasil dibuat! Total: Rp ${formatRupiah(serverTotal || grandTotal)}`,
         "success",
       );
       clearCart();
-      setTimeout(() => navigate("/"), 1500);
+      setTimeout(() => navigate(`/order/${orderNumber}`), 1500);
     } catch (error) {
       showToast(`Gagal membuat pesanan: ${error.message}`, "error");
     } finally {

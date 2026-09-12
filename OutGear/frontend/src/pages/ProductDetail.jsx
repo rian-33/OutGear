@@ -18,7 +18,7 @@ export default function ProductDetail() {
   const [endDate, setEndDate] = useState("");
   const [rentalError, setRentalError] = useState("");
 
-  const { data, loading } = useApi((signal) => api.getProductById(id, { signal }), [id]);
+  const { data, loading, error } = useApi((signal) => api.getProductById(id, { signal }), [id]);
 
   const apiProduct = data?.data || data;
   const product = apiProduct || fallbackProducts.find((p) => p.id === id) || null;
@@ -88,6 +88,13 @@ export default function ProductDetail() {
 
   return (
     <main className="pdp-container">
+      {error && (
+        <div className="api-warning">
+          <strong>⚠️ Backend tidak terhubung.</strong> Pastikan MongoDB dan
+          server backend sudah berjalan, kemudian muat ulang halaman. Detail di
+          bawah hanyalah data contoh.
+        </div>
+      )}
       <div className="pdp-grid">
         <div className="pdp-gallery">
           <div className="main-image">
