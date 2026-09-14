@@ -2,10 +2,14 @@ import { Route, Routes } from "react-router-dom";
 import SplashScreen from "./components/SplashScreen.jsx";
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
+import BackToTop from "./components/BackToTop.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Home from "./pages/Home.jsx";
 import Products from "./pages/Products.jsx";
 import ProductDetail from "./pages/ProductDetail.jsx";
+import Kategori from "./pages/Kategori.jsx";
+import Tentang from "./pages/Tentang.jsx";
+import Favorit from "./pages/Favorit.jsx";
 import Checkout from "./pages/Checkout.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import Login from "./pages/Login.jsx";
@@ -24,6 +28,9 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/products" element={<Products />} />
         <Route path="/product/:id" element={<ProductDetail />} />
+        <Route path="/kategori" element={<Kategori />} />
+        <Route path="/tentang" element={<Tentang />} />
+        <Route path="/favorit" element={<Favorit />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -48,6 +55,8 @@ export default function App() {
       </Routes>
 
       <Footer />
+
+      <BackToTop />
 
       <a
         href="https://wa.me/628123456789"

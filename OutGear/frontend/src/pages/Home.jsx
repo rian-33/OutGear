@@ -1,8 +1,5 @@
 import { useState, useEffect } from "react";
-import tasImg from "../assets/backpack.png";
-import sepatuImg from "../assets/boots.png";
-import tendaImg from "../assets/tent.png";
-import gearImg from "../assets/gear2.png";
+import { Link } from "react-router-dom";
 import garansiIcon from "../assets/garansi.png";
 import bayarIcon from "../assets/kemudahan pembayaran.png";
 import tukarIcon from "../assets/kemudahan penukaran.png";
@@ -21,13 +18,6 @@ const slides = [
     image:
       "https://images.unsplash.com/photo-1522163182402-834f871fd851?auto=format&fit=crop&q=80",
   },
-];
-
-const categories = [
-  { img: tasImg, label: "Bags", count: 145 },
-  { img: sepatuImg, label: "Shoes", count: 267 },
-  { img: tendaImg, label: "Tents", count: 89 },
-  { img: gearImg, label: "Gear", count: 312 },
 ];
 
 export default function Home() {
@@ -120,78 +110,28 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 3. KATEGORI PRODUK */}
-      <section id="kategori" className="section">
-        <h2 className="section-title">JELAJAHI KATEGORI</h2>
-        <div className="category-grid">
-          {categories.map((cat) => (
-            <article key={cat.label} className="category-card">
-              <div className="category-img-wrapper">
-                <img src={cat.img} alt={cat.label} className="category-img" />
-              </div>
-              <h3>{cat.label}</h3>
-              <p>{cat.count} Produk</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      {/* 4. TENTANG KAMI (THE STORY BEHIND, VISI, MISI) */}
-      <section id="tentang" className="about-story">
-        <div className="story-grid">
-          <div className="story-title">
-            <h2>The story behind</h2>
-          </div>
-          <div className="story-content">
-            <p>
-              Berawal dari sebuah pemikiran, ide dan mimpi serta keyakinan
-              memberikan yang terbaik untuk alam dan negeri, OutGear pun lahir
-              menjadi sebuah kekuatan baru dalam industri perlengkapan alam
-              terbuka. Hingga saat ini, kami masih berkarya untuk memberikan
-              segala kemampuan terbaik agar menjadi salah satu kekuatan industri
-              outdoor di Indonesia.
-            </p>
-          </div>
-        </div>
-
-        <div className="story-grid">
-          <div className="story-title">
-            <h2>VISI</h2>
-          </div>
-          <div className="story-content">
-            <p>
-              <em>
-                Menjadi sebuah produk mendunia dalam produk petualangan
-                khususnya lifestyle outdoor.
-              </em>
-            </p>
-          </div>
-        </div>
-
-        <div className="story-grid">
-          <div className="story-title">
-            <h2>MISI</h2>
-          </div>
-          <div className="story-content">
-            <ul>
-              <li>
-                Berinvestasi dalam pengembangan produk berkarakter serta
-                memperhatikan kriteria untuk menjadi yang terbaik.
-              </li>
-              <li>
-                Mengembangkan sistem e-commerce yang modern dan responsif.
-              </li>
-              <li>
-                Memperluas cakupan kriteria produk tema teknis, lifestyle, dan
-                adventure.
-              </li>
-              <li>
-                Menyediakan produk-produk berkualitas dan memuaskan untuk
-                kebutuhan pelanggan.
-              </li>
-            </ul>
-          </div>
-        </div>
+      {/* 3. TEASER KATEGORI & TENTANG */}
+      <section className="home-teaser">
+        <article className="teaser-card">
+          <h3>Jelajahi Berbagai Kategori</h3>
+          <p>
+            Tenda, carrier, sepatu, kompor, jaket, hingga headlamp — semua
+            tersedia untuk disewa atau dibeli.
+          </p>
+          <Link to="/kategori" className="btn-primary">
+            Lihat Semua Kategori
+          </Link>
+        </article>
+        <article className="teaser-card alt">
+          <h3>Kenali OutGear Lebih Dekat</h3>
+          <p>
+            Cerita, visi, dan misi kami untuk menjadi kekuatan industri outdoor
+            Indonesia.
+          </p>
+          <Link to="/tentang" className="btn-primary">
+            Tentang Kami
+          </Link>
+        </article>
       </section>
     </main>
   );

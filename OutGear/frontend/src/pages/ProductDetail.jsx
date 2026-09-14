@@ -70,8 +70,8 @@ export default function ProductDetail() {
   if (loading) {
     return (
       <div className="page-state">
-        <div className="spinner"></div>
-        <p>Memuat detail produk...</p>
+        <div className="skeleton skeleton-line w-40" />
+        <div className="skeleton skeleton-block h-320" />
       </div>
     );
   }
