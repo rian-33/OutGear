@@ -26,6 +26,8 @@
   --color-badge-success-text: #1b5e3f;
   --color-badge-sale: #e8714d;
   --color-star: #f5a623;
+  --color-cart: #1e3a8a;
+  --color-cart-hover: #1e40af;
   --color-warning-bg: #fef3c7;
   --color-warning-border: #f59e0b;
   --color-warning-text: #78350f;
@@ -45,6 +47,11 @@
 
   /* Card / surface */
   --card-bg: var(--color-surface);
+
+  /* Navbar glass */
+  --navbar-bg: rgba(15, 23, 42, 0.72);
+  --navbar-bg-scrolled: rgba(15, 23, 42, 0.95);
+  --navbar-blur: 14px;
 
   /* Transitions */
   --transition-fast: 0.2s ease;
@@ -111,10 +118,33 @@ button {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 7%;
-  background: var(--color-text-main);
+  padding: 14px 7%;
+  background: var(--navbar-bg);
+  -webkit-backdrop-filter: blur(var(--navbar-blur)) saturate(160%);
+  backdrop-filter: blur(var(--navbar-blur)) saturate(160%);
   color: var(--color-surface);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-sm);
+  transition:
+    background var(--transition-base),
+    box-shadow var(--transition-base),
+    padding var(--transition-base);
+}
+
+.navbar-scrolled {
+  padding: 9px 7%;
+  background: var(--navbar-bg-scrolled);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Fallback for browsers without backdrop-filter support */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .navbar {
+    background: var(--color-text-main);
+  }
+
+  .navbar-scrolled {
+    background: var(--color-text-main);
+  }
 }
 
 .brand-logo {
@@ -127,9 +157,23 @@ button {
 }
 
 .brand-logo img {
-  max-height: 45px;
+  height: 44px;
   width: auto;
   object-fit: contain;
+  background: #ffffff;
+  padding: 5px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.16);
+  transition:
+    box-shadow var(--transition-base),
+    border-color var(--transition-base),
+    transform var(--transition-fast);
+}
+
+.brand-logo:hover img {
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.24);
+  border-color: rgba(203, 213, 225, 0.9);
 }
 
 .nav-links {
@@ -145,6 +189,28 @@ button {
   color: var(--color-accent);
 }
 
+.nav-links > a:not(.cart-badge-btn),
+.nav-btn-link.is-active {
+  position: relative;
+}
+
+.nav-links > a.is-active,
+.nav-btn-link.is-active {
+  color: var(--color-accent);
+}
+
+.nav-links > a.is-active::after,
+.nav-btn-link.is-active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -8px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--color-accent);
+}
+
 .nav-btn-link {
   background: transparent;
   color: var(--color-surface);
@@ -153,9 +219,45 @@ button {
   padding: 0;
 }
 
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  transition:
+    transform var(--transition-fast),
+    background var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.35);
+  transform: rotate(20deg);
+}
+
+.theme-icon {
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.theme-dark .theme-icon {
+  transform: rotate(0deg);
+}
+
+.theme-light .theme-icon {
+  transform: rotate(0deg);
+}
+
+.theme-toggle:active .theme-icon {
+  transform: scale(0.8) rotate(-40deg);
+}
+
 .cart-badge-btn {
-  background: var(--color-primary-dark);
-  color: var(--color-surface);
+  background: var(--color-cart);
+  color: #fff;
   padding: 8px 16px;
   border-radius: 6px;
   display: flex;
@@ -164,7 +266,7 @@ button {
 }
 
 .cart-badge-btn:hover {
-  background: var(--color-primary-hover);
+  background: var(--color-cart-hover);
   transform: scale(1.02);
 }
 
@@ -598,13 +700,15 @@ button {
   border: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
+  position: relative;
   transition:
     transform var(--transition-base),
-    box-shadow var(--transition-base);
+    box-shadow var(--transition-base),
+    border-color var(--transition-base);
 }
 
 .product-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-6px);
   box-shadow: var(--shadow-float);
   border-color: #bcd2b6;
 }
@@ -615,6 +719,32 @@ button {
   display: grid;
   place-items: center;
   position: relative;
+  overflow: hidden;
+}
+
+.card-img::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.18), transparent 55%);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+  pointer-events: none;
+}
+
+.product-card:hover .card-img::after {
+  opacity: 1;
+}
+
+.card-product-img {
+  width: 50%;
+  height: 50%;
+  object-fit: contain;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.product-card:hover .card-product-img {
+  transform: scale(1.08);
 }
 
 .category-tag {
@@ -628,6 +758,7 @@ button {
   border-radius: 50px;
   font-weight: 600;
   text-transform: uppercase;
+  z-index: 2;
 }
 
 .card-info {
@@ -676,12 +807,6 @@ button {
   padding: 10px 5px;
   border-radius: 8px;
   font-weight: 700;
-}
-
-.card-product-img {
-  width: 50%;
-  height: 50%;
-  object-fit: contain;
 }
 
 /* =========================================
@@ -1041,18 +1166,107 @@ button {
 }
 
 /* =========================================
+   11B. NEWSLETTER
+   ========================================= */
+.newsletter-section {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 28px 32px;
+  margin-bottom: 48px;
+}
+
+.newsletter-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.newsletter-copy h3 {
+  font-family: var(--font-heading);
+  color: #fff;
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+
+.newsletter-copy p {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 13px;
+}
+
+.newsletter-form {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+  max-width: 420px;
+}
+
+.newsletter-form input {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+}
+
+.newsletter-form input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.newsletter-form input:focus {
+  border-color: var(--color-accent);
+}
+
+.newsletter-btn {
+  background: var(--color-accent);
+  color: #fff;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--transition-fast);
+}
+
+.newsletter-btn:hover {
+  background: var(--color-primary);
+}
+
+.newsletter-success {
+  color: #4ade80;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+@media (max-width: 640px) {
+  .newsletter-form {
+    max-width: 100%;
+    width: 100%;
+    flex-direction: column;
+  }
+}
+
+/* =========================================
    12. UTILITIES & ANIMATIONS
    ========================================= */
 .splash-screen {
   position: fixed;
   inset: 0;
+  overflow: hidden;
   background: var(--color-text-main);
-  color: var(--color-surface);
+  color: #fff;
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 9999;
-  animation: fadeOutSplash 0.6s ease 1.6s forwards;
+  animation: fadeOutSplash 0.7s ease 1.6s forwards;
 }
 
 .splash-content {
@@ -1064,21 +1278,108 @@ button {
 
 .splash-content img {
   width: auto;
-  height: 100px;
-  margin-bottom: 20px;
-  border-radius: 12px;
+  height: 96px;
+  padding: 9px 18px;
+  margin-bottom: 24px;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 14px 42px rgba(0, 0, 0, 0.35);
+  animation: splashLogoIn 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .splash-content h1 {
   font-family: var(--font-heading);
-  font-size: 40px;
-  color: var(--color-surface);
+  font-size: 42px;
+  color: #ffffff;
   letter-spacing: 2px;
+  animation: splashTitleIn 0.9s 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .splash-content p {
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.72);
   margin-top: 10px;
+  animation: splashSubIn 0.8s 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.splash-progress {
+  position: absolute;
+  left: 50%;
+  bottom: 12%;
+  transform: translateX(-50%);
+  width: min(170px, 42vw);
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  overflow: hidden;
+}
+
+.splash-progress span {
+  display: block;
+  height: 100%;
+  width: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #059669, #10b981);
+  transform-origin: left;
+  animation: splashProgress 1.6s ease-out both;
+}
+
+.app-main {
+  animation: appRise 0.7s 1.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes splashLogoIn {
+  from {
+    opacity: 0;
+    transform: scale(0.72) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes splashTitleIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+    letter-spacing: 14px;
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    letter-spacing: 2px;
+  }
+}
+
+@keyframes splashSubIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes splashProgress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes appRise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .float-wa {
@@ -1103,6 +1404,7 @@ button {
   to {
     opacity: 0;
     visibility: hidden;
+    transform: scale(1.045);
   }
 }
 
@@ -2164,36 +2466,6 @@ button {
   place-items: center;
 }
 
-.wishlist-btn {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid var(--color-border);
-  color: #94a3b8;
-  font-size: 16px;
-  line-height: 1;
-  cursor: pointer;
-  display: grid;
-  place-items: center;
-  transition: all var(--transition-base);
-  z-index: 2;
-}
-
-.wishlist-btn:hover {
-  transform: scale(1.12);
-  color: #e11d48;
-}
-
-.wishlist-btn.active {
-  color: #e11d48;
-  background: #fff;
-  border-color: #fecdd3;
-}
-
 .quickview-btn {
   position: absolute;
   right: 14px;
@@ -2569,6 +2841,112 @@ button {
 }
 
 /* =========================================
+   26B. TESTIMONIALS
+   ========================================= */
+.testimonial-section {
+  padding: 70px 7% 80px;
+  background: var(--color-surface-alt);
+  border-top: 1px solid var(--color-border);
+}
+
+.testimonial-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.testimonial-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition:
+    transform var(--transition-base),
+    box-shadow var(--transition-base),
+    border-color var(--transition-base);
+  position: relative;
+  overflow: hidden;
+}
+
+.testimonial-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s ease;
+}
+
+.testimonial-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-float);
+  border-color: var(--color-primary);
+}
+
+.testimonial-card:hover::before {
+  transform: scaleX(1);
+}
+
+.testimonial-quote {
+  font-family: Georgia, serif;
+  font-size: 56px;
+  line-height: 1;
+  color: var(--color-primary);
+  opacity: 0.25;
+  height: 30px;
+}
+
+.testimonial-text {
+  color: var(--color-text-muted);
+  font-size: 14px;
+  line-height: 1.7;
+  flex: 1;
+}
+
+.testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-top: 1px solid var(--color-border);
+  padding-top: 16px;
+}
+
+.testimonial-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-primary-dark), var(--color-primary));
+  color: #fff;
+  font-weight: 700;
+  font-size: 18px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.testimonial-name {
+  display: block;
+  color: var(--color-text-main);
+  font-size: 14px;
+}
+
+.testimonial-org {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+/* =========================================
    27. PAGE HERO (SHARED)
    ========================================= */
 .page-hero {
@@ -2835,36 +3213,6 @@ button {
 }
 
 /* =========================================
-   30. FAVORIT / EMPTY STATE
-   ========================================= */
-.wishlist-section {
-  padding: 40px 7% 72px;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 80px 7%;
-}
-
-.empty-state-icon {
-  font-size: 56px;
-  color: #f43f5e;
-}
-
-.empty-state h3 {
-  font-family: var(--font-heading);
-  margin: 12px 0 8px;
-}
-
-.empty-state p {
-  color: var(--color-text-muted);
-  margin-bottom: 22px;
-  max-width: 420px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* =========================================
    31. CATALOG EXTRAS (SORT, RESET, EMPTY)
    ========================================= */
 .sort-box {
@@ -2951,6 +3299,9 @@ button {
   --color-warning-border: #d6940c;
   --color-warning-text: #fcd34d;
 
+  --navbar-bg: rgba(13, 21, 38, 0.72);
+  --navbar-bg-scrolled: rgba(13, 21, 38, 0.95);
+
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.45), 0 4px 6px -2px rgba(0, 0, 0, 0.35);
@@ -2960,7 +3311,15 @@ button {
 }
 
 /* --- Navbar & Splash --- */
-[data-theme="dark"] .navbar,
+[data-theme="dark"] .navbar {
+  background: var(--navbar-bg);
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .navbar-scrolled {
+  background: var(--navbar-bg-scrolled);
+}
+
 [data-theme="dark"] .splash-screen {
   background: #0d1526;
   color: #f1f5f9;
@@ -3012,19 +3371,6 @@ button {
 
 [data-theme="dark"] .filter-group h3 {
   border-bottom-color: var(--color-border);
-}
-
-/* --- Wishlist --- */
-[data-theme="dark"] .wishlist-btn {
-  background: rgba(17, 28, 49, 0.92);
-  color: #cbd5e1;
-  border-color: var(--color-border);
-}
-
-[data-theme="dark"] .wishlist-btn.active {
-  color: #f87171;
-  border-color: #7f1d1d;
-  background: #1c2a45;
 }
 
 /* --- Forms (inputs, selects, textareas) --- */
@@ -3205,11 +3551,6 @@ button {
   background: #13301f;
 }
 
-/* --- Empty state --- */
-[data-theme="dark"] .empty-state-icon {
-  color: #fb7185;
-}
-
 /* --- Page hero --- */
 [data-theme="dark"] .page-hero {
   background: var(--color-surface-alt);
@@ -3296,6 +3637,20 @@ button {
   border-top-color: var(--color-border);
 }
 
+/* --- Testimonials --- */
+[data-theme="dark"] .testimonial-card {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+}
+
+[data-theme="dark"] .testimonial-author {
+  border-top-color: var(--color-border);
+}
+
+[data-theme="dark"] .testimonial-card:hover {
+  border-color: var(--color-primary);
+}
+
 /* =========================================
    33. RESPONSIVE (NEW COMPONENTS)
    ========================================= */
@@ -3309,6 +3664,9 @@ button {
   .tentang-blocks-two,
   .quickview-grid,
   .home-teaser {
+    grid-template-columns: 1fr;
+  }
+  .testimonial-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -3332,7 +3690,12 @@ button {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .reveal {
+  .reveal,
+  .reveal-up,
+  .reveal-down,
+  .reveal-left,
+  .reveal-right,
+  .reveal-scale {
     opacity: 1;
     transform: none;
     transition: none;
@@ -3341,7 +3704,21 @@ button {
     opacity: 1;
     transform: none;
   }
+  .splash-content img,
+  .splash-content h1,
+  .splash-content p,
+  .splash-progress,
+  .app-main {
+    animation: none;
+  }
+  .splash-screen {
+    animation: none;
+    transition: opacity 0.3s ease;
+  }
   .skeleton::after {
     animation: none;
+  }
+  .back-to-top {
+    transition: none;
   }
 }

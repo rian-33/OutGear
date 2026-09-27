@@ -1,3 +1,4 @@
+import { useState } from "react";
 import igicon from "../assets/ig.png";
 import yticon from "../assets/youtube.png";
 import fbicon from "../assets/facebook.png";
@@ -5,8 +6,51 @@ import tiktokicon from "../assets/tiktok.png";
 import waicon from "../assets/wa.png";
 
 export default function Footer() {
+  const [email, setEmail] = useState("");
+  const [subscribed, setSubscribed] = useState(false);
+
+  const handleSubscribe = (e) => {
+    e.preventDefault();
+    if (email.trim()) {
+      setSubscribed(true);
+      setEmail("");
+      setTimeout(() => setSubscribed(false), 3000);
+    }
+  };
+
   return (
     <footer className="footer-complex">
+      {/* Newsletter */}
+      <div className="newsletter-section">
+        <div className="newsletter-inner">
+          <div className="newsletter-copy">
+            <h3>Dapatkan Info Promo & Produk Terbaru</h3>
+            <p>
+              Berlangganan newsletter untuk diskon eksklusif dan tips outdoor.
+            </p>
+          </div>
+          {subscribed ? (
+            <p className="newsletter-success">
+              &check; Terima kasih, langganan berhasil!
+            </p>
+          ) : (
+            <form className="newsletter-form" onSubmit={handleSubscribe}>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Masukkan email Anda"
+                aria-label="Email untuk newsletter"
+                required
+              />
+              <button type="submit" className="newsletter-btn">
+                Berlangganan
+              </button>
+            </form>
+          )}
+        </div>
+      </div>
+
       <div className="footer-grid">
         <div className="footer-brand">
           <span className="logo-text">

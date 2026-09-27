@@ -66,6 +66,8 @@ export default function Kategori() {
                       src={cat.icon}
                       alt={cat.label}
                       className="kategori-card-img-src"
+                      loading="lazy"
+                      decoding="async"
                     />
                   ) : (
                     <span className="kategori-card-fallback">{cat.label[0]}</span>

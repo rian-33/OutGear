@@ -3,7 +3,6 @@ import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import Products from "../src/pages/Products.jsx";
 import { CartProvider } from "../src/context/CartContext.jsx";
-import { WishlistProvider } from "../src/context/WishlistContext.jsx";
 import { ToastProvider } from "../src/components/Toast.jsx";
 import { api } from "../src/services/api.js";
 
@@ -35,9 +34,7 @@ function renderProducts() {
     <MemoryRouter initialEntries={["/products"]}>
       <ToastProvider>
         <CartProvider>
-          <WishlistProvider>
-            <Products />
-          </WishlistProvider>
+          <Products />
         </CartProvider>
       </ToastProvider>
     </MemoryRouter>,

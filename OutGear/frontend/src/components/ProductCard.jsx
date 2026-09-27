@@ -1,25 +1,15 @@
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext.jsx";
-import { useWishlist } from "../context/WishlistContext.jsx";
 import { useToast } from "./Toast.jsx";
 import { getProductImage, formatRupiah } from "../utils/productImages.js";
 import { getCategoryLabel } from "../utils/fallbackData.js";
 
 export default function ProductCard({ product, onQuickView }) {
   const { addToCart } = useCart();
-  const { isWishlisted, toggleWishlist } = useWishlist();
   const { showToast } = useToast();
 
   const id = product.id || product._id;
   const detailTo = `/product/${id}`;
-  const wished = isWishlisted(product);
-
-  const handleWishlist = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    toggleWishlist(product);
-    showToast(wished ? "Dihapus dari favorit" : "Ditambahkan ke favorit ♥", "success");
-  };
 
   const handleQuickBuy = (e) => {
     e.preventDefault();
@@ -35,16 +25,11 @@ export default function ProductCard({ product, onQuickView }) {
             src={getProductImage(product.category)}
             alt={product.name}
             className="card-product-img"
+            loading="lazy"
+            decoding="async"
           />
         </Link>
         <span className="category-tag">{getCategoryLabel(product.category)}</span>
-        <button
-          className={`wishlist-btn ${wished ? "active" : ""}`}
-          aria-label={wished ? "Hapus dari favorit" : "Tambahkan ke favorit"}
-          onClick={handleWishlist}
-        >
-          ♥
-        </button>
         {onQuickView && (
           <button
             className="quickview-btn"

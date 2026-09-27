@@ -1,8 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useCart } from "../context/CartContext.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
-import { useWishlist } from "../context/WishlistContext.jsx";
 import { useTheme } from "../context/ThemeContext.jsx";
 import { categoryList } from "../utils/fallbackData.js";
 import { formatRupiah } from "../utils/productImages.js";
@@ -23,19 +22,19 @@ function useClickOutside(ref, handler) {
 export default function Navbar() {
   const { itemCount, cart, total } = useCart();
   const { user, isAdmin, logout } = useAuth();
-  const { count: wishlistCount } = useWishlist();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
+  const { pathname, search } = useLocation();
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [megaOpen, setMegaOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [cartPreviewOpen, setCartPreviewOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   const menuRef = useRef(null);
   const megaRef = useRef(null);
-  const searchRef = useRef(null);
   const cartPreviewRef = useRef(null);
   const searchInputRef = useRef(null);
 
@@ -48,6 +47,13 @@ export default function Navbar() {
       searchInputRef.current.focus();
     }
   }, [searchOpen]);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   useEffect(() => {
     const onKey = (e) => {
@@ -76,6 +82,11 @@ export default function Navbar() {
   );
 
   const activeCategories = categoryList.filter((c) => c.value);
+
+  const isActive = (path) =>
+    path === "/" ? pathname === "/" : pathname.startsWith(path);
+  const isCategoryActive =
+    pathname.startsWith("/kategori") || search.includes("category=");
 
   return (
     <>
@@ -115,23 +126,28 @@ export default function Navbar() {
         </div>
       )}
 
-      <header className="navbar">
+      <header className={`navbar${scrolled ? " navbar-scrolled" : ""}`}>
         <Link className="brand-logo" to="/">
-          <img
-            src={logoImg}
-            alt="OutGear Logo"
-            style={{ height: "45px", objectFit: "contain" }}
-          />
+          <img src={logoImg} alt="OutGear Logo" />
         </Link>
 
         <nav className="nav-links">
-          <Link to="/">Home</Link>
-          <Link to="/products">Katalog</Link>
+          <Link className={isActive("/") ? "is-active" : undefined} to="/">
+            Home
+          </Link>
+          <Link
+            className={isActive("/products") ? "is-active" : undefined}
+            to="/products"
+          >
+            Katalog
+          </Link>
 
           {/* --- Mega menu trigger --- */}
           <div className="mega-menu-wrapper" ref={megaRef}>
             <button
-              className="nav-btn-link mega-trigger"
+              className={`nav-btn-link mega-trigger${
+                isCategoryActive ? " is-active" : ""
+              }`}
               onClick={() => setMegaOpen((o) => !o)}
               aria-haspopup="true"
               aria-expanded={megaOpen}
@@ -166,15 +182,36 @@ export default function Navbar() {
             )}
           </div>
 
-          <Link to="/tentang">Tentang</Link>
+          <Link
+            className={isActive("/tentang") ? "is-active" : undefined}
+            to="/tentang"
+          >
+            Tentang
+          </Link>
 
           <button
-            className="nav-btn-link theme-toggle"
+            className={`nav-btn-link theme-toggle theme-${theme}`}
             onClick={toggleTheme}
             aria-label="Ganti tema"
             title={theme === "dark" ? "Mode terang" : "Mode gelap"}
           >
-            {theme === "dark" ? "☀️" : "🌙"}
+            {theme === "dark" ? (
+              <svg className="theme-icon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="4" />
+                <path d="M12 2v2" />
+                <path d="M12 20v2" />
+                <path d="m4.93 4.93 1.41 1.41" />
+                <path d="m17.66 17.66 1.41 1.41" />
+                <path d="M2 12h2" />
+                <path d="M20 12h2" />
+                <path d="m6.34 17.66-1.41 1.41" />
+                <path d="m19.07 4.93-1.41 1.41" />
+              </svg>
+            ) : (
+              <svg className="theme-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+              </svg>
+            )}
           </button>
 
           {/* --- Search trigger --- */}
@@ -232,10 +269,6 @@ export default function Navbar() {
               </div>
             )}
           </div>
-
-          <Link to="/favorit" className="cart-badge-btn" aria-label="Favorit">
-            ♥ <span className="badge">{wishlistCount}</span>
-          </Link>
 
           {/* --- Cart mini-dropdown --- */}
           <div className="cart-preview-wrapper" ref={cartPreviewRef}>
