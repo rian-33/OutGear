@@ -1,0 +1,214 @@
+// KostManager — Skema Prisma (PRD-3 §2 ERD final)
+// Catatan: semua tabel wajib created_at / updated_at / deleted_at (soft delete, PRD-3 §2.2)
+// + @@unique([id_user, periode]) pada tagihan untuk idempotensi cron (PRD-3 §1.5, FR-16).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ---- Enum & status (PRD-3 §2.1) ----
+enum Role {
+  ADMIN
+  PENGHUNI
+}
+
+enum StatusKamar {
+  KOSONG
+  TERISI
+  MAINTENANCE
+}
+
+enum StatusTagihan {
+  BELUM_BAYAR
+  PENDING
+  LUNAS
+  OVERDUE
+}
+
+enum StatusPembayaran {
+  MENUNGGU_KONFIRMASI
+  DIKONFIRMASI
+  DITOLAK
+}
+
+enum MetodeBayar {
+  TRANSFER_BANK
+  CASH
+  EWALLET
+}
+
+enum StatusPengajuan {
+  PENDING
+  DISETUJUI
+  DITOLAK
+}
+
+enum StatusReservasi {
+  MENUNGGU
+  DIKONFIRMASI
+  DIBATALKAN
+  SELESAI
+}
+
+model Pengguna {
+  id_user      String   @id @default(cuid())
+  username     String   @unique
+  password     String
+  nama_lengkap String
+  email        String   @unique
+  no_hp        String?
+  role         Role     @default(PENGHUNI)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  deleted_at   DateTime?
+
+  detailKos        DetailKos?
+  tagihan          Tagihan[]          @relation("TagihanUser")
+  pembayaran       Pembayaran[]       @relation("PembayaranUser")
+  pembayaranKonfirmasi Pembayaran[]   @relation("PembayaranConfirmedBy")
+  pengajuanPindah  PengajuanPindah[]  @relation("PengajuanPindahUser")
+
+  @@map("pengguna")
+}
+
+model Kamar {
+  id_kamar   String     @id @default(cuid())
+  no_kamar   String     @unique
+  harga      Decimal    @db.Decimal(12, 2)
+  kapasitas  Int        @default(2)
+  fasilitas  String?
+  status     StatusKamar @default(KOSONG)
+  created_at DateTime   @default(now())
+  updated_at DateTime   @updatedAt
+  deleted_at DateTime?
+
+  detailKos    DetailKos[]
+  tagihan      Tagihan[]
+  pengajuanLama PengajuanPindah[] @relation("PengajuanKamarLama")
+  pengajuanBaru PengajuanPindah[] @relation("PengajuanKamarBaru")
+  reservasi     Reservasi[]
+
+  @@index([status])
+  @@map("kamar")
+}
+
+model Reservasi {
+  id_reservasi  String          @id @default(cuid())
+  nama_tamu     String
+  email         String
+  no_hp         String
+  id_kamar      String
+  check_in      DateTime
+  check_out     DateTime
+  jumlah_tamu   Int
+  total_harga   Decimal         @db.Decimal(12, 2)
+  status        StatusReservasi @default(MENUNGGU)
+  catatan       String?
+  created_at    DateTime        @default(now())
+  updated_at    DateTime        @updatedAt
+  deleted_at    DateTime?
+
+  kamar Kamar @relation(fields: [id_kamar], references: [id_kamar])
+
+  @@index([id_kamar, check_in, check_out])
+  @@index([status])
+  @@map("reservasi")
+}
+
+model DetailKos {
+  id_detail   String   @id @default(cuid())
+  id_user     String   @unique
+  id_kamar    String
+  tgl_masuk   DateTime
+  jatuh_tempo DateTime
+  aktif       Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  deleted_at  DateTime?
+
+  pengguna Pengguna @relation(fields: [id_user], references: [id_user])
+  kamar    Kamar    @relation(fields: [id_kamar], references: [id_kamar])
+
+  @@index([id_kamar])
+  @@map("detail_kos")
+}
+
+model Tagihan {
+  id_tagihan  String      @id @default(cuid())
+  id_user     String
+  id_kamar    String
+  periode     String      @db.VarChar(7)
+  jumlah      Decimal     @db.Decimal(12, 2)
+  jatuh_tempo DateTime
+  status      StatusTagihan @default(BELUM_BAYAR)
+  /// Alasan tagihan di luar sewa rutin (denda, kelebihan listrik, dll) — FR-17.
+  catatan     String?
+  created_at  DateTime    @default(now())
+  updated_at  DateTime    @updatedAt
+  deleted_at  DateTime?
+
+  pengguna   Pengguna    @relation("TagihanUser", fields: [id_user], references: [id_user])
+  kamar      Kamar       @relation(fields: [id_kamar], references: [id_kamar])
+  pembayaran Pembayaran[]
+
+  @@unique([id_user, periode])
+  @@index([status])
+  @@index([periode])
+  @@map("tagihan")
+}
+
+model Pembayaran {
+  id_pembayaran String           @id @default(cuid())
+  id_tagihan    String
+  id_user       String
+  jumlah_bayar  Decimal          @db.Decimal(12, 2)
+  metode        MetodeBayar
+  bukti_bayar   String?
+  /// Referensi transfer / catatan penghuni saat mengirim pembayaran.
+  catatan       String?
+  status        StatusPembayaran @default(MENUNGGU_KONFIRMASI)
+  alasan_tolak  String?
+  catatan_admin String?
+  confirmed_by  String?
+  created_at    DateTime         @default(now())
+  updated_at    DateTime         @updatedAt
+  deleted_at    DateTime?
+
+  tagihan      Tagihan   @relation(fields: [id_tagihan], references: [id_tagihan])
+  pengguna     Pengguna  @relation("PembayaranUser", fields: [id_user], references: [id_user])
+  confirmedBy  Pengguna? @relation("PembayaranConfirmedBy", fields: [confirmed_by], references: [id_user])
+
+  @@index([id_tagihan])
+  @@index([id_user])
+  @@index([status])
+  @@map("pembayaran")
+}
+
+model PengajuanPindah {
+  id_pengajuan  String          @id @default(cuid())
+  id_user       String
+  kamar_lama    String
+  kamar_baru    String
+  status      StatusPengajuan @default(PENDING)
+  /// Alasan penghuni mengajukan pindah kamar.
+  alasan      String?
+  catatan_admin String?
+  tgl_respons   DateTime?
+  created_at    DateTime        @default(now())
+  updated_at    DateTime        @updatedAt
+  deleted_at    DateTime?
+
+  pengguna  Pengguna @relation("PengajuanPindahUser", fields: [id_user], references: [id_user])
+  kamarLama Kamar    @relation("PengajuanKamarLama", fields: [kamar_lama], references: [id_kamar])
+  kamarBaru Kamar    @relation("PengajuanKamarBaru", fields: [kamar_baru], references: [id_kamar])
+
+  @@index([status])
+  @@index([id_user])
+  @@map("pengajuan_pindah")
+}

@@ -1,0 +1,33 @@
+{
+  "name": "kostmanager",
+  "version": "0.1.0",
+  "private": true,
+  "description": "KostManager — Sistem Manajemen Pembayaran Kost (monorepo)",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "echo Web: http://localhost:3001 && echo API: http://localhost:3000/api && echo Swagger: http://localhost:3000/api/docs && turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.0",
+    "prettier": "^3.9.9",
+    "turbo": "^2.11.5",
+    "typescript": "~5.9.3"
+  },
+  "packageManager": "npm@11.13.0",
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,mjs,json,css,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  }
+}
